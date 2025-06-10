@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  VENDOR
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String  @unique
+  role      Role     @default(CUSTOMER)
+  orders   Order[] @relation("OrderUser")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Vendor {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String  @unique
+  phone     String?
+  address   String?
+  website   String?
+  products Product[] @relation("ProductVendor")
+  orders   Order[] @relation("OrderVendor")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  description String?
+  price     Float
+  stock     Int
+
+  vendorId  String @db.ObjectId
+  vendor    Vendor @relation(fields: [vendorId], references: [id], name: "ProductVendor")
+  orderItems OrderItem[] @relation("OrderItemProduct")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([vendorId])
+}
+
+model Order {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String  @db.ObjectId
+  user      User    @relation(fields: [userId], references: [id], name: "OrderUser")
+  vendorId  String  @db.ObjectId
+  vendor    Vendor  @relation(fields: [vendorId], references: [id], name: "OrderVendor")
+  orderItems OrderItem[] @relation("OrderItemOrder")
+
+  total     Float
+  status    OrderStatus   @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([vendorId])
+}
+
+model OrderItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String  @db.ObjectId
+  order     Order   @relation(fields: [orderId], references: [id], name: "OrderItemOrder")
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id], name: "OrderItemProduct")
+
+  quantity  Int
+  price     Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([productId])
+}

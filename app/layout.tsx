@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { inter } from "@/lib/fonts";
+import type { Viewport } from "next";
 
 export const metadata: Metadata = {
   title: "Shopizon",
   description: "Shopizon - Your Online Shopping Destination",
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

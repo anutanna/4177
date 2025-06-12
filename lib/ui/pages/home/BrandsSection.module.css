@@ -1,0 +1,35 @@
+.brandsSection {
+  background-color: #fefaf6;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.brandGrid {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.brandCard {
+  background: white;
+  color: black;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  min-width: 150px;
+  text-align: center;
+}
+
+.button {
+  background-color: black;
+  color: white;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.button:hover {
+  background-color: #333;
+}

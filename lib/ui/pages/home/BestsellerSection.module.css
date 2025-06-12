@@ -1,0 +1,53 @@
+.bestsellerSection {
+  background-color: #5a2c26;
+  padding: 4rem 2rem;
+  color: white;
+  text-align: center;
+}
+
+.productGrid {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.productCard {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  padding: 1rem;
+  background: #fff;
+  width: 280px;
+  color: black;
+  min-width: 150px;
+  text-align: center;
+}
+
+.productCard img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.productCard h3 {
+  font-size: 1rem;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.productCard .price {
+  font-weight: bold;
+  color: #000;
+}
+
+.button {
+  background-color: black;
+  color: white;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.button:hover {
+  background-color: #333;
+}

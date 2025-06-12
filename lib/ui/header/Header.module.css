@@ -1,0 +1,42 @@
+.header {
+  width: 100%;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #ddd;
+  background-color: #fefaf6;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #000;
+  font-weight: 500;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+.ctaButton {
+  background-color: black;
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.ctaButton:hover {
+  background-color: #333;
+}

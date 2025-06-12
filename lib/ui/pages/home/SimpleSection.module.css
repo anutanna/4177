@@ -1,0 +1,18 @@
+.simpleSection {
+  background-color: #f9f8b5;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.button {
+  background-color: black;
+  color: white;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.button:hover {
+  background-color: #333;
+}

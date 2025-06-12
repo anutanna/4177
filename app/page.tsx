@@ -1,10 +1,10 @@
-import Header from "@/lib/ui/Header";
-import HeroSection from "@/lib/ui/HeroSection";
-import BrandsSection from "@/lib/ui/BrandsSection";
-import BestsellerSection from "@/lib/ui/BestsellerSection";
-import ValuesSection from "@/lib/ui/ValuesSection";
-import SimpleSection from "@/lib/ui/SimpleSection";
-import Footer from "@/lib/ui/Footer";
+import Header from "@/lib/ui/header/Header";
+import HeroSection from "@/lib/ui/pages/home/HeroSection";
+import BrandsSection from "@/lib/ui/pages/home/BrandsSection";
+import BestsellerSection from "@/lib/ui/pages/home/BestsellerSection";
+import ValuesSection from "@/lib/ui/pages/home/ValuesSection";
+import SimpleSection from "@/lib/ui/pages/home/SimpleSection";
+import Footer from "@/lib/ui/footer/Footer";
 
 export default function Home() {
   return (

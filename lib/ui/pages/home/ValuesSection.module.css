@@ -1,0 +1,52 @@
+.valuesSection {
+  background-color: #fefaf6;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.valueTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.valueTags span {
+  background-color: #eee;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+}
+
+.valuesBox {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.boxTitle {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.boxSubtext {
+  color: #666;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.button {
+  background-color: black;
+  color: white;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.button:hover {
+  background-color: #333;
+}

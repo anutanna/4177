@@ -1,9 +1,7 @@
 import Header from "@/lib/ui/header/Header";
-import HeroSection from "@/lib/ui/pages/home/HeroSection";
-import BrandsSection from "@/lib/ui/pages/home/BrandsSection";
-import BestsellerSection from "@/lib/ui/pages/home/BestsellerSection";
-import ValuesSection from "@/lib/ui/pages/home/ValuesSection";
-import SimpleSection from "@/lib/ui/pages/home/SimpleSection";
+import LatestProducts from "@/lib/ui/pages/home/LatestProductsSection";
+import BrandsRow from "@/lib/ui/pages/home/BrandsRowSection";
+import PromotionsBanner  from "@/lib/ui/pages/home/PromoBannerSection";
 import Footer from "@/lib/ui/footer/Footer";
 
 export default function Home() {
@@ -11,12 +9,11 @@ export default function Home() {
     <div className="page">
       <Header />
       <main>
-        <section className="hero-section"><HeroSection /></section>
-        <section className="brands-section"><BrandsSection /></section>
-        <section className="bestseller-section"><BestsellerSection /></section>
-        <section className="values-section"><ValuesSection /></section>
-        <section className="simple-section"><SimpleSection /></section>
+        <PromotionsBanner />
+        <BrandsRow />
+        <LatestProducts />
       </main>
+
       <Footer />
     </div>
   );

@@ -1,42 +1,48 @@
 .header {
-  width: 100%;
-  padding: 1rem 2rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 0.875rem;
-  border-bottom: 1px solid #ddd;
-  background-color: #fefaf6;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.logo {
-  font-weight: bold;
-  font-size: 1.2rem;
+.logo img {
+  height: 32px;
 }
 
-.nav {
+.searchWrapper {
+  flex: 1;
+  display: flex;
+  margin: 0 2rem;
+  max-width: 500px;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 999px 0 0 999px;
+}
+
+.searchBtn {
+  background: #f3f4f6;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-left: none;
+  border-radius: 0 999px 999px 0;
+  cursor: pointer;
+}
+
+.icons {
   display: flex;
   gap: 1.5rem;
+  font-size: 1.25rem;
+  align-items: center;
 }
 
-.nav a {
-  text-decoration: none;
+.cartCount {
+  font-size: 0.8rem;
+  margin-left: 0.25rem;
   color: #000;
-  font-weight: 500;
-}
-
-.nav a:hover {
-  text-decoration: underline;
-}
-
-.ctaButton {
-  background-color: black;
-  color: white;
-  padding: 0.4rem 1rem;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-.ctaButton:hover {
-  background-color: #333;
 }

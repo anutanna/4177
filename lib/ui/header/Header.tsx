@@ -1,5 +1,6 @@
 import styles from './Header.module.css';
 import { Input } from '@/lib/ui/components/input';
+import Link from 'next/link';
 
 export default function Header() {
   return (
@@ -16,8 +17,14 @@ export default function Header() {
       </div>
 
       <div className={styles.icons}>
-        <span className={styles.icon}>👤</span>
-        <span className={styles.icon}>🛍️ <span className={styles.cartCount}>0</span></span>
+        <Link href="/login">
+          <span className={styles.icon}>👤</span>
+        </Link>
+        <Link href="/cart">
+          <span className={styles.icon}>
+            🛍️ <span className={styles.cartCount}>0</span>
+          </span>
+        </Link>
       </div>
     </header>
   );

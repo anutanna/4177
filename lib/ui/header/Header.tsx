@@ -20,7 +20,7 @@ export default function Header() {
         <Link href="/login">
           <span className={styles.icon}>👤</span>
         </Link>
-        <Link href="/register">
+        <Link href="/signup">
           <span className={styles.icon}>📝</span>
         </Link>
         <Link href="/cart">

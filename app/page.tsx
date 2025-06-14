@@ -1,15 +1,20 @@
-import { getUsers } from '@/lib/actions/db_user_actions';
-export default async function Home() {
-  const users = await getUsers();
-  return (
-    <main className="">
-      <h1>Hello world!</h1>
+import Header from "@/lib/ui/header/Header";
+import LatestProducts from "@/lib/ui/pages/home/LatestProductsSection";
+import BrandsRow from "@/lib/ui/pages/home/BrandsRowSection";
+import PromotionsBanner  from "@/lib/ui/pages/home/PromoBannerSection";
+import Footer from "@/lib/ui/footer/Footer";
 
-      <ul>
-        {users.map(user => (
-          <li key={user.id}>{user.name}</li>
-        ))};
-      </ul>
-    </main>
+export default function Home() {
+  return (
+    <div className="page">
+      <Header />
+      <main>
+        <PromotionsBanner />
+        <BrandsRow />
+        <LatestProducts />
+      </main>
+
+      <Footer />
+    </div>
   );
 }

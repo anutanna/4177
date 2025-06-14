@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { registerUserAction } from "@/lib/actions/register_action";
+import { UserRole } from "@prisma/client";
 
 export default function RegisterPageFormAction() {
-  const [mode, setMode] = useState<"CUSTOMER" | "VENDOR">("CUSTOMER");
+  const [mode, setMode] = useState<UserRole>(UserRole.CUSTOMER);
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -27,9 +28,9 @@ export default function RegisterPageFormAction() {
       <div className="flex justify-center mb-6">
         <button
           type="button"
-          onClick={() => setMode("CUSTOMER")}
+          onClick={() => setMode(UserRole.CUSTOMER)}
           className={`px-4 py-2 border rounded-l-md ${
-            mode === "CUSTOMER"
+            mode === UserRole.CUSTOMER
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
@@ -38,9 +39,9 @@ export default function RegisterPageFormAction() {
         </button>
         <button
           type="button"
-          onClick={() => setMode("VENDOR")}
+          onClick={() => setMode(UserRole.VENDOR)}
           className={`px-4 py-2 border-t border-b border-r rounded-r-md ${
-            mode === "VENDOR"
+            mode === UserRole.VENDOR
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
@@ -89,7 +90,7 @@ export default function RegisterPageFormAction() {
           />
         </div>
 
-        {mode === "VENDOR" && (
+        {mode === UserRole.VENDOR && (
           <>
             <div className="pt-4 border-t">
               <h2 className="text-lg font-semibold mb-2">Business Info</h2>
@@ -151,7 +152,7 @@ export default function RegisterPageFormAction() {
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
         >
-          {mode === "CUSTOMER" ? "Register as Customer" : "Register as Vendor"}
+          {mode === UserRole.CUSTOMER ? "Register as Customer" : "Register as Vendor"}
         </button>
       </form>
 

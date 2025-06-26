@@ -23,6 +23,7 @@ async function main() {
     {
       name: 'John Doe',
       email: 'admin@localmarket.com',
+      password: 'admin123',
       address: '123 Admin Ave, Halifax, NS',
       phone: '902-123-4567',
       role: UserRole.ADMIN,
@@ -31,6 +32,7 @@ async function main() {
     {
       name: 'Sarah Miller',
       email: 'sarah.miller@gmail.com',
+      password: 'sarah123',
       address: '456 Spring Garden Rd, Halifax, NS',
       phone: '902-555-0101',
       role: UserRole.VENDOR,
@@ -39,6 +41,7 @@ async function main() {
     {
       name: 'Mike Thompson',
       email: 'mike.thompson@outlook.com',
+      password: 'mike123',
       address: '789 Barrington St, Halifax, NS',
       phone: '902-555-0102',
       role: UserRole.VENDOR,
@@ -47,6 +50,7 @@ async function main() {
     {
       name: 'James Rodriguez',
       email: 'james.rodriguez@vendor.com',
+      password: 'james123',
       address: '147 Gottingen St, Halifax, NS',
       phone: '902-555-0106',
       role: UserRole.VENDOR,
@@ -55,6 +59,7 @@ async function main() {
     {
       name: 'Emily Chen',
       email: 'emily.chen@hotmail.com',
+      password: 'emily123',
       address: '321 Quinpool Rd, Halifax, NS',
       phone: '902-555-0103',
       role: UserRole.CUSTOMER,
@@ -63,6 +68,7 @@ async function main() {
     {
       name: 'David Wilson',
       email: 'david.wilson@yahoo.com',
+      password: 'david123',
       address: '654 North St, Halifax, NS',
       phone: '902-555-0104',
       role: UserRole.CUSTOMER,
@@ -71,6 +77,7 @@ async function main() {
     {
       name: 'Lisa Anderson',
       email: 'lisa.anderson@gmail.com',
+      password: 'lisa123',
       address: '987 South St, Halifax, NS',
       phone: '902-555-0105',
       role: UserRole.CUSTOMER,

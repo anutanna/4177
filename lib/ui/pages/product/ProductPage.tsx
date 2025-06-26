@@ -2,6 +2,8 @@ import { Button } from '@/lib/ui/components/button';
 import { Card, CardContent } from '@/lib/ui/components/card';
 
 const productName = "Beach Umbrella - Sunshine Yellow"
+const productPrice = 45.00
+const productStarsReview = 4
 
 export default function ProductPage(){
     return (

@@ -5,7 +5,7 @@ const productName = "Beach Umbrella - Sunshine Yellow"
 
 export default function ProductPage(){
     return (
-        <div>
+        <div className='Product Description'>
             <p>100% UV Protection & Waterproof Material: Shopizon beach umbrella is made of polyester providing you to UPF 50+ protection so as to block harmful radiation in</p>
             <p> summer. UV-Resistant</p>
             <p>Long lasting, Fade-Resistant and Easy to clean</p>

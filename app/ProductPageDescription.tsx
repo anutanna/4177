@@ -1,6 +1,5 @@
 import Header from "@/lib/ui/header/Header";
 import Product  from "@/lib/ui/pages/product/ProductPage";
-import Footer from "@/lib/ui/footer/Footer";
 
 export default function product() {
   return (
@@ -14,3 +13,5 @@ export default function product() {
     </div>
   );
 }
+
+import Footer from "@/lib/ui/footer/Footer";

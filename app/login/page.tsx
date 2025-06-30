@@ -9,10 +9,9 @@ export default function LoginPage() {
   const [error, setError]       = useState<string | null>(null);
   const router = useRouter();
 
-  // Redirect to home if already logged in
+  // Redirect to home if already authenticated
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
+    if (localStorage.getItem('token')) {
       router.replace('/');
     }
   }, [router]);
@@ -21,20 +20,28 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error || 'Login failed');
-      return;
+      if (!res.ok) {
+        setError(data.error || 'Login failed');
+        return;
+      }
+
+      // Store token and user name
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userName', data.user.name);
+
+      // Navigate to home page
+      router.push('/');
+    } catch {
+      setError('Unexpected error, please try again.');
     }
-
-    localStorage.setItem('token', data.token);
-    router.push('/');
   };
 
   return (

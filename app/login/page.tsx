@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import Footer from '@/lib/ui/footer/Footer';
+import styles from './LoginPage.module.css';
 
 export default function LoginPage() {
   const [email, setEmail]       = useState('');
@@ -33,11 +35,11 @@ export default function LoginPage() {
         return;
       }
 
-      // Store token and user name
+      // Storing token and user name
       localStorage.setItem('token', data.token);
       localStorage.setItem('userName', data.user.name);
 
-      // Navigate to home page
+      // Navigating to home page
       router.push('/');
     } catch {
       setError('Unexpected error, please try again.');
@@ -45,45 +47,42 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white p-8 rounded-lg shadow-md space-y-6"
-      >
-        <h1 className="text-2xl font-bold text-center">Log In</h1>
-        {error && <p className="text-red-600 text-center">{error}</p>}
+    <div className={styles.container}>
+      <main className={styles.main}>
+        <form onSubmit={handleSubmit} className={styles.formWrapper}>
+          <h1 className={styles.title}>Log In</h1>
+          {error && <p className={styles.errorMsg}>{error}</p>}
 
-        <div>
-          <label htmlFor="email" className="block mb-1 font-medium">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
+          <div>
+            <label htmlFor="email" className={styles.fieldLabel}>Email</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              className={styles.fieldInput}
+            />
+          </div>
 
-        <div>
-          <label htmlFor="password" className="block mb-1 font-medium">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
+          <div>
+            <label htmlFor="password" className={styles.fieldLabel}>Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              className={styles.fieldInput}
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          Sign In
-        </button>
-      </form>
+          <button type="submit" className={styles.submitBtn}>
+            Sign In
+          </button>
+        </form>
+      </main>
+      <Footer />
     </div>
   );
 }

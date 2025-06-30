@@ -1,12 +1,42 @@
-import styles from './LatestProductsSection.module.css';
-import { Button } from '@/lib/ui/components/button';
-import { Card, CardContent } from '@/lib/ui/components/card';
+"use client";
+
+import styles from "./LatestProductsSection.module.css";
+import { Button } from "@/lib/ui/components/button";
+import ProductCard from "@/lib/ui/components/productCard";
 
 const products = [
-  { name: "Mug", price: "$15.00", rating: 200, image: "/images/mug.jpg" },
-  { name: "Vase", price: "$35.00", rating: 50, image: "/images/vase.jpg" },
-  { name: "Toy Train", price: "$15.00", rating: 25, image: "/images/train.jpg" },
-  { name: "Umbrella", price: "$45.00", rating: 50, image: "/images/umbrella.jpg" },
+  {
+    id: "1",
+    name: "Mug",
+    price: "$15.00",
+    rating: 200,
+    image:
+      "https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp",
+  },
+  {
+    id: "2",
+    name: "Vase",
+    price: "$35.00",
+    rating: 50,
+    image:
+      "https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp",
+  },
+  {
+    id: "3",
+    name: "Toy Train",
+    price: "$15.00",
+    rating: 25,
+    image:
+      "https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp",
+  },
+  {
+    id: "4",
+    name: "Umbrella",
+    price: "$45.00",
+    rating: 50,
+    image:
+      "https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp",
+  },
 ];
 
 export default function LatestProductsSection() {
@@ -15,15 +45,13 @@ export default function LatestProductsSection() {
       <h3 className={styles.heading}>Latest Products</h3>
       <div className={styles.grid}>
         {products.map((product, i) => (
-          <Card key={i} className={styles.card}>
-            <CardContent className={styles.cardContent}>
-              <img src={product.image} alt={product.name} className={styles.image} />
-              <p className={styles.price}>{product.price}</p>
-              <p className={styles.rating}>★ {product.rating}</p>
-              <Button className={styles.button}>+1</Button>
-
-            </CardContent>
-          </Card>
+          <ProductCard
+            key={i}
+            name={product.name}
+            image={product.image}
+            price={product.price}
+            id={product.id}
+          />
         ))}
       </div>
     </section>

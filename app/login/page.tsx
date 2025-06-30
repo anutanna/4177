@@ -1,56 +1,97 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError]       = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // For now just loging. Need link this to actual auth later.
-    console.log("Logging in with", email, password);
+    setError(null);
+
+    try {
+      // Send login request to API
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      // Parse response JSON
+      const data = await res.json();
+      console.log('login response:', data);
+
+      if (!res.ok) {
+        setError(data.error || 'Login failed');
+        return;
+      }
+
+      // Store JWT token
+      localStorage.setItem('token', data.token);
+
+      // Navigate to dashboard
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Unexpected error, please try again.');
+    }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
-      <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">User Login</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-white p-8 rounded-lg shadow-md space-y-6"
+      >
+        <h1 className="text-2xl font-bold text-center">Log In</h1>
+        {error && <p className="text-red-600 text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block font-semibold mb-1">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block font-semibold mb-1">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            />
-          </div>
-
-          <button type="submit" className="w-full bg-blue-700 text-white font-semibold py-2 rounded-md hover:bg-blue-800">
-            Login
-          </button>
-        </form>
-
-        <div className="text-right mt-2">
-          <a href="#" className="text-blue-600 text-sm">Forgot password?</a>
+        <div>
+          <label htmlFor="email" className="block mb-1 font-medium">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
         </div>
-      </div>
+
+        <div>
+          <label htmlFor="password" className="block mb-1 font-medium">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          Sign In
+        </button>
+
+        <p className="text-sm text-center text-gray-600">
+          Forgot password?{' '}
+          <a href="/forgot-password" className="text-blue-600 hover:underline">
+            Reset here
+          </a>
+        </p>
+      </form>
     </div>
   );
 }

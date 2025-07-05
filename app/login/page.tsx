@@ -80,6 +80,14 @@ export default function LoginPage() {
           <button type="submit" className={styles.submitBtn}>
             Sign In
           </button>
+          <div className="text-center mt-4">
+  <a
+    href="/forgot-password"
+    className="text-sm text-blue-600 hover:underline"
+  >
+    Forgot your password?
+  </a>
+</div>
         </form>
       </main>
       <Footer />

@@ -1,4 +1,3 @@
-// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -24,17 +23,19 @@ enum OrderStatus {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String  @unique
-  password  String
-  address   String?
-  phone     String?
-  avatar    String?
-  role      UserRole     @default(CUSTOMER)
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String   @unique
+  password String
+  address  String?
+  phone    String?
+  avatar   String?
+  role     UserRole @default(CUSTOMER)
 
-  orders   Order[] @relation("OrderUser")
+  orders   Order[]    @relation("OrderUser")
   business Business[] @relation("BusinessUser")
+
+  passwordResetTokens PasswordResetToken[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -42,22 +43,33 @@ model User {
   @@map("users")
 }
 
-model Business {
+model PasswordResetToken {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userOwnerId String @db.ObjectId
-  name      String
-  email     String  @unique
-  phone     String?
-  address   String?
-  website   String?
-  logo      String?
+  userId    String   @db.ObjectId
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("password_reset_tokens")
+}
+
+model Business {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  userOwnerId String  @db.ObjectId
+  name        String
+  email       String  @unique
+  phone       String?
+  address     String?
+  website     String?
+  logo        String?
   description String?
-  rating    Float? @default(0.0)
+  rating      Float?  @default(0.0)
 
-  user User @relation(fields: [userOwnerId], references: [id], name: "BusinessUser")
+  user     User      @relation(fields: [userOwnerId], references: [id], name: "BusinessUser")
   products Product[] @relation("ProductBusiness")
-  orders   Order[] @relation("OrderBusiness")
-
+  orders   Order[]   @relation("OrderBusiness")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -66,12 +78,12 @@ model Business {
 }
 
 model Brand {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
   description String?
-  logo String?
-  website String?
-  products Product[] @relation("ProductBrand")
+  logo        String?
+  website     String?
+  products    Product[] @relation("ProductBrand")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -80,56 +92,51 @@ model Brand {
 }
 
 model Product {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
   description String?
-  price     Float
-  stock     Int
+  price       Float
+  stock       Int
 
-  businessId  String @db.ObjectId
-  business    Business @relation(fields: [businessId], references: [id], name: "ProductBusiness")
-  brandId String @db.ObjectId
-  brand Brand @relation(fields: [brandId], references: [id], name: "ProductBrand")
+  businessId String   @db.ObjectId
+  business   Business @relation(fields: [businessId], references: [id], name: "ProductBusiness")
+  brandId    String   @db.ObjectId
+  brand      Brand    @relation(fields: [brandId], references: [id], name: "ProductBrand")
 
-
-  orderItems OrderItem[] @relation("OrderItemProduct")
-  images ProductImage[] @relation("ProductImageProduct")
+  orderItems OrderItem[]         @relation("OrderItemProduct")
+  images     ProductImage[]      @relation("ProductImageProduct")
   categories ProductToCategory[] @relation("ProductCategories")
-
-
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([businessId])
-
   @@map("products")
 }
 
 model ProductImage {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id], name: "ProductImageProduct")
 
-  url       String
-  altText   String?
+  url     String
+  altText String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([productId])
-
   @@map("product_images")
 }
 
 model ProductCategory {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  categoryName String @unique
-  categoryDescription String?
-  subCategoryName String?
+  id                     String              @id @default(auto()) @map("_id") @db.ObjectId
+  categoryName           String              @unique
+  categoryDescription    String?
+  subCategoryName        String?
   subCategoryDescription String?
-  products ProductToCategory[] @relation("ProductCategories")
+  products               ProductToCategory[] @relation("ProductCategories")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -137,54 +144,51 @@ model ProductCategory {
   @@map("product_categories")
 }
 
-model ProductToCategory { // This model represents the many-to-many relationship between Product and ProductCategory
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  productId String @db.ObjectId
+model ProductToCategory {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  productId  String @db.ObjectId
   categoryId String @db.ObjectId
 
-  product Product @relation(fields: [productId], references: [id], name: "ProductCategories")
+  product  Product         @relation(fields: [productId], references: [id], name: "ProductCategories")
   category ProductCategory @relation(fields: [categoryId], references: [id], name: "ProductCategories")
 
   @@unique([productId, categoryId])
-
   @@map("product_to_category")
 }
 
 model Order {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String  @db.ObjectId
-  user      User    @relation(fields: [userId], references: [id], name: "OrderUser")
-  businessId  String  @db.ObjectId
-  business    Business  @relation(fields: [businessId], references: [id], name: "OrderBusiness")
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String      @db.ObjectId
+  user       User        @relation(fields: [userId], references: [id], name: "OrderUser")
+  businessId String      @db.ObjectId
+  business   Business    @relation(fields: [businessId], references: [id], name: "OrderBusiness")
   orderItems OrderItem[] @relation("OrderItemOrder")
 
-  total     Float
-  status    OrderStatus   @default(PENDING)
+  total  Float
+  status OrderStatus @default(PENDING)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([businessId])
-
   @@map("orders")
 }
 
 model OrderItem {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
   orderId   String  @db.ObjectId
   order     Order   @relation(fields: [orderId], references: [id], name: "OrderItemOrder")
   productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id], name: "OrderItemProduct")
 
-  quantity  Int
-  price     Float
+  quantity Int
+  price    Float
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([orderId])
   @@index([productId])
-
   @@map("order_items")
 }

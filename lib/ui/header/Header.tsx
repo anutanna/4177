@@ -41,7 +41,11 @@ export default function Header() {
           <span>🔍</span>
         </button>
       </div>
+
       <div className={styles.icons}>
+        <Link href="/">
+          <span className={styles.icon}>🏠</span> {/* 🏠 Home Icon */}
+        </Link>
         <Link href="/login">
           <span className={styles.icon}>👤</span>
         </Link>

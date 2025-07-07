@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { FaShoppingCart, FaTrash, FaCreditCard } from 'react-icons/fa';
 import MiniHero from '@/lib/ui/dashboard/MiniHero';
-import Header from '@/lib/ui/header/Header';
-import Footer from '@/lib/ui/footer/Footer';
 import Link from 'next/link';
 
 export default function CartPage() {
@@ -53,7 +51,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#ffefaf6]">
-      <Header />
+
 
       <MiniHero
         title="Your Shopping Cart"
@@ -172,7 +170,7 @@ export default function CartPage() {
         </div>
       </main>
 
-      <Footer />
+
     </div>
   );
 }

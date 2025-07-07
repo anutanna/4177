@@ -7,14 +7,14 @@ import Footer from "@/lib/ui/footer/Footer";
 export default function Home() {
   return (
     <div className="page">
-      <Header />
+     
       <main>
         <PromotionsBanner />
         <BrandsRow />
         <LatestProducts />
       </main>
 
-      <Footer />
+      
     </div>
   );
 }

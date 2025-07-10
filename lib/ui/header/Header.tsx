@@ -3,25 +3,29 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Input } from '@/lib/ui/components/input';
 import styles from './Header.module.css';
+import { Input } from '@/lib/ui/components/input';
 
 export default function Header() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const name = localStorage.getItem('userName');
+    const userRole = localStorage.getItem('role');
     setLoggedIn(!!token);
     setUserName(name);
+    setRole(userRole);
   }, []);
 
   const handleAccountClick = () => {
     if (loggedIn) {
       localStorage.removeItem('token');
       localStorage.removeItem('userName');
+      localStorage.removeItem('role');
       setLoggedIn(false);
       router.replace('/');
     } else {
@@ -44,14 +48,19 @@ export default function Header() {
 
       <div className={styles.icons}>
         <Link href="/">
-          <span className={styles.icon}>🏠</span> 
+          <span className={styles.icon}>🏠</span>
         </Link>
-        <Link href="/login">
-          <span className={styles.icon}>👤</span>
-        </Link>
-        <Link href="/signup">
-          <span className={styles.icon}>📝</span>
-        </Link>
+
+        {loggedIn && role === 'vendor' && (
+          <Link href="/vendor/dashboard">
+            <span className={styles.icon}>📦 Vendor</span>
+          </Link>
+        )}
+
+        <span className={styles.icon} onClick={handleAccountClick}>
+          {loggedIn ? '🚪 Logout' : '👤 Login'}
+        </span>
+
         <Link href="/cart">
           <span className={styles.icon}>
             🛍️ <span className={styles.cartCount}>0</span>

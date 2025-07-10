@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import Footer from '@/lib/ui/footer/Footer';
 import styles from './LoginPage.module.css';
 
 export default function LoginPage() {
@@ -11,7 +10,6 @@ export default function LoginPage() {
   const [error, setError]       = useState<string | null>(null);
   const router = useRouter();
 
-  // Redirect to home if already authenticated
   useEffect(() => {
     if (localStorage.getItem('token')) {
       router.replace('/');
@@ -28,6 +26,7 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -35,11 +34,11 @@ export default function LoginPage() {
         return;
       }
 
-      // Storing token and user name
+      // Store token + user data including role
       localStorage.setItem('token', data.token);
       localStorage.setItem('userName', data.user.name);
+      localStorage.setItem('role', data.user.role); // ✅
 
-      // Navigating to home page
       router.push('/');
     } catch {
       setError('Unexpected error, please try again.');
@@ -77,20 +76,20 @@ export default function LoginPage() {
             />
           </div>
 
-          <button type="submit" className={styles.submitBtn}>
-            Sign In
-          </button>
+          <button type="submit" className={styles.submitBtn}>Sign In</button>
+
           <div className="text-center mt-4">
-  <a
-    href="/forgot-password"
-    className="text-sm text-blue-600 hover:underline"
-  >
-    Forgot your password?
-  </a>
-</div>
+            <a href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              Forgot your password?
+            </a>
+          </div>
+          <div className="text-center mt-2">
+            <a href="/signup" className="text-sm text-gray-700 hover:underline">
+              New user? Sign up here
+            </a>
+          </div>
         </form>
       </main>
-      <Footer />
     </div>
   );
 }

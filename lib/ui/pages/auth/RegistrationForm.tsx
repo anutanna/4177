@@ -154,6 +154,12 @@ export default function RegisterPageFormAction() {
         >
           {mode === UserRole.CUSTOMER ? "Register as Customer" : "Register as Vendor"}
         </button>
+        <div className="text-center mt-4">
+  <a href="/login" className="text-sm text-gray-700 hover:underline">
+    Already have an account? Sign in here
+  </a>
+</div>
+
       </form>
 
       {error && <p className="mt-4 text-center text-red-600">{error}</p>}

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'replace_with_env_secret';
+const JWT_SECRET = process.env.JWT_SECRET ;
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   // Finding user by email
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || user.password !== password) {
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   }
   
@@ -30,6 +30,9 @@ export async function POST(req: NextRequest) {
     JWT_SECRET,
     { expiresIn: '2h' }
   );
+
+
+
 
   // Sending token and user info
   return NextResponse.json({

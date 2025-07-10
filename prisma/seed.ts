@@ -1,4 +1,5 @@
 import { PrismaClient, UserRole, OrderStatus, Prisma } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -19,7 +20,7 @@ async function main() {
   console.log('🗑️  Cleared existing data');
 
   // Create Users (mix of customers, vendors, and admin)
-  const users: Prisma.UserCreateInput[] = [
+  const users = [
     {
       name: 'John Doe',
       email: 'admin@localmarket.com',
@@ -86,15 +87,28 @@ async function main() {
   ];
 
   const createdUsers = [];
+
   for (const user of users) {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+  
     const createdUser = await prisma.user.upsert({
       where: { email: user.email },
       update: {},
-      create: user,
+      create: {
+        name: user.name,
+        email: user.email,
+        password: hashedPassword,
+        address: user.address,
+        phone: user.phone,
+        avatar: user.avatar,
+        role: user.role,
+      },
     });
+  
     createdUsers.push(createdUser);
   }
-  console.log(`✅ Created ${createdUsers.length} users`);
+  
+  
 
   // Create Brands
   const brands: Prisma.BrandCreateInput[] = [

@@ -26,8 +26,30 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
+      
       const data = await res.json();
+      
+      if (res.ok) {
+        const token = data.token;
+        localStorage.setItem('token', token);
+      
+        // ✅ sync local cart to server
+        const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
+        await fetch('/api/cart/sync', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ items: localCart }),
+        });
+      
+        // Redirect or do something
+      } else {
+        console.error(data.error);
+      }
+      
+
 
       if (!res.ok) {
         setError(data.error || 'Login failed');
@@ -37,9 +59,10 @@ export default function LoginPage() {
       // Store token + user data including role
       localStorage.setItem('token', data.token);
       localStorage.setItem('userName', data.user.name);
-      localStorage.setItem('role', data.user.role); // ✅
+      localStorage.setItem('role', data.user.role); 
 
       router.push('/');
+      window.location.reload();
     } catch {
       setError('Unexpected error, please try again.');
     }

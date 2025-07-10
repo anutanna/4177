@@ -10,7 +10,7 @@ export default function Home() {
      
       <main>
         <PromotionsBanner />
-        <BrandsRow />
+       
         <LatestProducts />
       </main>
 

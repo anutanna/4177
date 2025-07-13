@@ -65,3 +65,19 @@
   margin-left: 0.25rem;
   color: #000;
 }
+
+.icon {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.icon:hover {
+  background-color: #f3f4f6;
+}
+
+.userName {
+  font-weight: 500;
+  color: #374151;
+}

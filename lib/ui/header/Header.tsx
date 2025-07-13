@@ -67,9 +67,20 @@ export default function Header() {
   };
 
   const handleAccountClick = () => {
-    localStorage.clear();
-    setLoggedIn(false);
-    router.replace('/');
+    console.log('Login/Logout button clicked. Logged in:', loggedIn);
+    if (loggedIn) {
+      // User is logged in - logout
+      console.log('Logging out...');
+      localStorage.clear();
+      setLoggedIn(false);
+      setUserName(null);
+      setRole(null);
+      router.replace('/');
+    } else {
+      // User is not logged in - go to login page
+      console.log('Navigating to login page...');
+      router.push('/login');
+    }
   };
 
   return (
@@ -115,9 +126,14 @@ export default function Header() {
         {loggedIn && role === 'VENDOR' && (
           <Link href="/dashboard"><span className={styles.icon}>📦 Vendor</span></Link>
         )}
-        <span className={styles.icon} onClick={handleAccountClick}>
+        <button 
+          type="button"
+          className={styles.icon} 
+          onClick={handleAccountClick}
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
           {loggedIn ? '🚪 Logout' : '👤 Login'}
-        </span>
+        </button>
         <Link href="/cart">
           <span className={styles.icon}>
             🛍️ <span className={styles.cartCount}>{cartCount}</span>

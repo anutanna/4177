@@ -1,28 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { getProducts } from "@/lib/actions/db_product_actions";
 import styles from "./LatestProductsSection.module.css";
 import ProductCard from "@/lib/ui/components/productCard";
 
-type Product = {
-  id: string;
-  name: string;
-  price: number;
-  images: { url: string }[];
-};
+export default async function LatestProductsSection() {
 
-export default function LatestProductsSection() {
-  const [products, setProducts] = useState<Product[]>([]);
-
-  useEffect(() => {
-    async function fetchProducts() {
-      const res = await fetch("/api/products");
-      const data = await res.json();
-      setProducts(data);
-    }
-
-    fetchProducts();
-  }, []);
+  const products = await getProducts();
 
   return (
     <section className={styles.latestProducts}>
@@ -32,7 +14,7 @@ export default function LatestProductsSection() {
           <ProductCard
             key={product.id}
             name={product.name}
-            image={product.images[0]?.url || "/placeholder.jpg"}
+            image={product.images?.[0]?.url || "/placeholder.jpg"}
             price={`${product.price}`}
             id={product.id}
           />

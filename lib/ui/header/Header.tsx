@@ -1,11 +1,13 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import styles from './Header.module.css';
-import { Input } from '@/lib/ui/components/input';
-import { useCart } from '@/lib/ui/context/CartContext';
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import styles from "./Header.module.css";
+import { Input } from "@/lib/ui/components/input";
+import { useCart } from "@/lib/ui/context/CartContext";
+import { authClient } from "@/auth-client";
 
 interface Product {
   id: string;
@@ -13,23 +15,15 @@ interface Product {
 }
 
 export default function Header() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userName, setUserName] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [results, setResults] = useState<Product[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
   const { cartCount } = useCart();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const name = localStorage.getItem('userName');
-    const userRole = localStorage.getItem('role');
-    setLoggedIn(!!token);
-    setUserName(name);
-    setRole(userRole);
-  }, []);
+  // Use better-auth hooks
+  const { data: session } = authClient.useSession();
+  const { signOut } = authClient;
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -44,17 +38,19 @@ export default function Header() {
     try {
       const res = await fetch(`/api/products`);
       const data: Product[] = await res.json();
-      const filtered = data.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
+      const filtered = data.filter((p) =>
+        p.name.toLowerCase().includes(query.toLowerCase())
+      );
       setResults(filtered);
     } catch (err) {
-      console.error('Search failed:', err);
+      console.error("Search failed:", err);
       setResults([]);
     }
   };
 
   const handleSelect = (id: string) => {
     router.push(`/products/${id}`);
-    setSearch('');
+    setSearch("");
     setShowDropdown(false);
   };
 
@@ -66,27 +62,30 @@ export default function Header() {
     }
   };
 
-  const handleAccountClick = () => {
-    console.log('Login/Logout button clicked. Logged in:', loggedIn);
-    if (loggedIn) {
+  const handleAccountClick = async () => {
+    const isLoggedIn = !!session?.user;
+    console.log("Login/Logout button clicked. Logged in:", isLoggedIn);
+    if (isLoggedIn) {
       // User is logged in - logout
-      console.log('Logging out...');
-      localStorage.clear();
-      setLoggedIn(false);
-      setUserName(null);
-      setRole(null);
-      router.replace('/');
+      console.log("Logging out...");
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.replace("/");
+          },
+        },
+      });
     } else {
       // User is not logged in - go to login page
-      console.log('Navigating to login page...');
-      router.push('/login');
+      console.log("Navigating to login page...");
+      router.push("/login");
     }
   };
 
   return (
     <header className={styles.header}>
       <div className={styles.logo}>
-        <img src="/logo.svg" alt="Shopizon" />
+        <Image src="/logo.svg" alt="Shopizon" width={120} height={40} />
       </div>
 
       <form className={styles.searchWrapper} onSubmit={handleSubmit}>
@@ -117,22 +116,28 @@ export default function Header() {
         )}
       </form>
 
-      {loggedIn && userName && (
-        <span className={styles.userName}>👋 Hi, {userName}</span>
+      {session?.user && (
+        <span className={styles.userName}>👋 Hi, {session.user.name}</span>
       )}
 
       <div className={styles.icons}>
-        <Link href="/"><span className={styles.icon}>🏠</span></Link>
-        {loggedIn && role === 'VENDOR' && (
-          <Link href="/dashboard"><span className={styles.icon}>📦 Vendor</span></Link>
-        )}
-        <button 
+        <Link href="/">
+          <span className={styles.icon}>🏠</span>
+        </Link>
+        {session?.user &&
+          "role" in session.user &&
+          session.user.role === "VENDOR" && (
+            <Link href="/dashboard">
+              <span className={styles.icon}>📦 Vendor</span>
+            </Link>
+          )}
+        <button
           type="button"
-          className={styles.icon} 
+          className={styles.icon}
           onClick={handleAccountClick}
-          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          style={{ background: "none", border: "none", cursor: "pointer" }}
         >
-          {loggedIn ? '🚪 Logout' : '👤 Login'}
+          {session?.user ? "🚪 Logout" : "👤 Login"}
         </button>
         <Link href="/cart">
           <span className={styles.icon}>

@@ -1,7 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/auth-client";
+import { addToCart } from "@/lib/actions/cart_actions";
 
 interface Props {
   productId: string;
@@ -10,43 +12,33 @@ interface Props {
 export default function AddToCartSection({ productId }: Props) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { data: session } = authClient.useSession();
 
-  const handleAddToCart = () => {
-    const token = localStorage.getItem('token');
-  
-    if (!token) {
-      // User not logged in — store in localStorage
-      const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const existing = localCart.find((item: any) => item.productId === productId);
-  
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        localCart.push({ productId, quantity: 1 });
-      }
-  
-      localStorage.setItem('cart', JSON.stringify(localCart));
-      alert('Item added to cart!');
+  const handleAddToCart = async () => {
+    if (!session?.user) {
+      // User not logged in - redirect to login
+      alert("Please log in to add items to cart.");
+      router.push("/login");
       return;
     }
-  
-    // User is logged in — call API
-    fetch('/api/cart', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ productId, quantity: 1 }),
-    })
-      .then(async res => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        alert('Item added to cart!');
-      })
-      .catch(err => alert(err.message));
+
+    // User is logged in — use server action
+    setLoading(true);
+    try {
+      const result = await addToCart(productId, 1);
+
+      if (result.success) {
+        alert("Item added to cart!");
+      } else {
+        alert("Failed to add to cart: " + result.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   };
-  
 
   return (
     <button
@@ -54,7 +46,7 @@ export default function AddToCartSection({ productId }: Props) {
       onClick={handleAddToCart}
       disabled={loading}
     >
-      {loading ? 'Adding...' : 'Add to Cart'}
+      {loading ? "Adding..." : "Add to Cart"}
     </button>
   );
 }

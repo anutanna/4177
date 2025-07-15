@@ -23,46 +23,46 @@ export default function CartPage() {
     const fetchCart = async () => {
       const token = localStorage.getItem('token');
       console.log('Token in localStorage:', token);
-  
+
       if (!token) {
         console.warn('No token found. User may not be logged in.');
         return;
       }
-  
+
       const res = await fetch('/api/cart', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       const data = await res.json();
       console.log('Cart API response:', data);
-  
+
       if (res.ok) {
         setCartItems(data);
       } else {
         console.error(data.error);
       }
-  
+
       setLoading(false);
     };
-  
+
     fetchCart();
   }, []);
-  
+
 
   const handleQuantityChange = async (id: string, delta: number) => {
     const newQuantity = Math.max(1, cartItems.find(item => item.id === id)?.quantity! + delta);
-  
+
     setCartItems(prev =>
       prev.map(item =>
         item.id === id ? { ...item, quantity: newQuantity } : item
       )
     );
-  
+
     const token = localStorage.getItem('token');
     if (!token) return;
-  
+
     await fetch(`/api/cart/${id}`, {
       method: 'PATCH',
       headers: {
@@ -72,13 +72,13 @@ export default function CartPage() {
       body: JSON.stringify({ quantity: newQuantity }),
     });
   };
-  
+
   const handleRemoveItem = async (id: string) => {
     setCartItems(prev => prev.filter(item => item.id !== id));
-  
+
     const token = localStorage.getItem('token');
     if (!token) return;
-  
+
     await fetch(`/api/cart/${id}`, {
       method: 'DELETE',
       headers: {
@@ -86,7 +86,7 @@ export default function CartPage() {
       },
     });
   };
-  
+
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -103,11 +103,11 @@ export default function CartPage() {
       router.push('/login');
       return;
     }
-  
+
     // User is logged in — continue to checkout page
     router.push('/checkout');
   };
-  
+
   return (
     <div className="min-h-screen flex flex-col bg-[#ffefaf6]">
       <MiniHero

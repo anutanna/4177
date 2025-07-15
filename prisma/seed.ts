@@ -1,5 +1,5 @@
 import { PrismaClient, UserRole, OrderStatus, Prisma } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -16,7 +16,9 @@ async function main() {
   await prisma.productCategory.deleteMany();
   await prisma.business.deleteMany();
   await prisma.brand.deleteMany();
-  await prisma.passwordResetToken.deleteMany();
+  await prisma.verification.deleteMany();
+  await prisma.account.deleteMany();
+  await prisma.session.deleteMany();
   await prisma.user.deleteMany();
 
   console.log("🗑️  Cleared existing data");
@@ -26,71 +28,71 @@ async function main() {
     {
       name: "John Doe",
       email: "admin@localmarket.com",
-      password: "admin123",
+      password: "password123",
       address: "123 Admin Ave, Halifax, NS",
       phone: "902-123-4567",
       role: UserRole.ADMIN,
-      avatar:
+      image:
         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
     },
     {
       name: "Sarah Miller",
       email: "sarah.miller@gmail.com",
-      password: "sarah123",
+      password: "password123",
       address: "456 Spring Garden Rd, Halifax, NS",
       phone: "902-555-0101",
       role: UserRole.VENDOR,
-      avatar:
+      image:
         "https://images.unsplash.com/photo-1494790108755-2616b612b5bb?w=150&h=150&fit=crop&crop=face",
     },
     {
       name: "Mike Thompson",
       email: "mike.thompson@outlook.com",
-      password: "mike123",
+      password: "password123",
       address: "789 Barrington St, Halifax, NS",
       phone: "902-555-0102",
       role: UserRole.VENDOR,
-      avatar:
+      image:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     },
     {
       name: "James Rodriguez",
       email: "james.rodriguez@vendor.com",
-      password: "james123",
+      password: "password123",
       address: "147 Gottingen St, Halifax, NS",
       phone: "902-555-0106",
       role: UserRole.VENDOR,
-      avatar:
+      image:
         "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=150&h=150&fit=crop&crop=face",
     },
     {
       name: "Emily Chen",
       email: "emily.chen@hotmail.com",
-      password: "emily123",
+      password: "password123",
       address: "321 Quinpool Rd, Halifax, NS",
       phone: "902-555-0103",
       role: UserRole.CUSTOMER,
-      avatar:
+      image:
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
     },
     {
       name: "David Wilson",
       email: "david.wilson@yahoo.com",
-      password: "david123",
+      password: "password123",
       address: "654 North St, Halifax, NS",
       phone: "902-555-0104",
       role: UserRole.CUSTOMER,
-      avatar:
+      image:
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
     },
     {
       name: "Lisa Anderson",
       email: "lisa.anderson@gmail.com",
-      password: "lisa123",
+      password: "password123",
       address: "987 South St, Halifax, NS",
       phone: "902-555-0105",
       role: UserRole.CUSTOMER,
-      avatar:
+      image:
         "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
     },
   ];
@@ -98,24 +100,41 @@ async function main() {
   const createdUsers = [];
 
   for (const user of users) {
-    const hashedPassword = await bcrypt.hash(user.password, 10);
+    try {
+      const createdUser = await prisma.user.upsert({
+        where: { email: user.email },
+        update: {},
+        create: {
+          name: user.name,
+          email: user.email,
+          address: user.address,
+          phone: user.phone,
+          role: user.role,
+          emailVerified: true,
+          image: user.image,
+        },
+      });
 
-    const createdUser = await prisma.user.upsert({
-      where: { email: user.email },
-      update: {},
-      create: {
-        name: user.name,
-        email: user.email,
-        password: hashedPassword,
-        address: user.address,
-        phone: user.phone,
-        avatar: user.avatar,
-        role: user.role,
-      },
-    });
+      // Create account record for authentication with hashed password
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+      await prisma.account.create({
+        data: {
+          accountId: createdUser.id,
+          providerId: "credential",
+          userId: createdUser.id,
+          password: hashedPassword, // Store hashed password for Better Auth
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
 
-    createdUsers.push(createdUser);
+      createdUsers.push(createdUser);
+    } catch (error) {
+      console.error(`❌ Failed to create user ${user.email}:`, error);
+    }
   }
+
+  console.log(`✅ Created ${createdUsers.length} users`);
 
   // Create Brands
   const brands: Prisma.BrandCreateInput[] = [
@@ -221,6 +240,14 @@ async function main() {
   const vendorUsers = createdUsers.filter(
     (user) => user.role === UserRole.VENDOR
   );
+
+  if (vendorUsers.length < 3) {
+    console.error(
+      `❌ Expected at least 3 vendor users, but only found ${vendorUsers.length}`
+    );
+    throw new Error("Insufficient vendor users for business creation");
+  }
+
   const businesses = [
     {
       userOwnerId: vendorUsers[0].id, // Sarah Miller

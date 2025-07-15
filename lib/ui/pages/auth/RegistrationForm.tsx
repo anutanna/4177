@@ -1,25 +1,19 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { registerUserAction } from "@/lib/actions/register_action";
+import { useActionState, useEffect, useState } from "react";
 import { UserRole } from "@prisma/client";
+import { registerUser } from "@/lib/actions/auth_actions";
 
 export default function RegisterPageFormAction() {
   const [mode, setMode] = useState<UserRole>(UserRole.CUSTOMER);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [state, action, isPending] = useActionState(registerUser, null);
 
-  async function handleSubmit(formData: FormData) {
-    setError("");
-
-    try {
-      await registerUserAction(formData);
-      // If successful, redirect to home page
-      router.push("/");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+  useEffect(() => {
+    // If registration was successful
+    if (state?.success && !isPending) {
+      // Force a full page reload
+      window.location.href = "/";
     }
-  }
+  }, [state, isPending]);
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-md mt-8">
@@ -50,7 +44,7 @@ export default function RegisterPageFormAction() {
         </button>
       </div>
 
-      <form action={handleSubmit} className="space-y-4">
+      <form action={action} className="space-y-4">
         <input type="hidden" name="role" value={mode} />
 
         <div>
@@ -60,6 +54,7 @@ export default function RegisterPageFormAction() {
             name="name"
             className="w-full px-3 py-2 border rounded-md"
             required
+            disabled={isPending}
           />
         </div>
         <div>
@@ -69,6 +64,7 @@ export default function RegisterPageFormAction() {
             name="email"
             className="w-full px-3 py-2 border rounded-md"
             required
+            disabled={isPending}
           />
         </div>
         <div>
@@ -78,6 +74,7 @@ export default function RegisterPageFormAction() {
             name="password"
             className="w-full px-3 py-2 border rounded-md"
             required
+            disabled={isPending}
           />
         </div>
         <div>
@@ -87,6 +84,7 @@ export default function RegisterPageFormAction() {
             name="confirmPassword"
             className="w-full px-3 py-2 border rounded-md"
             required
+            disabled={isPending}
           />
         </div>
 
@@ -102,6 +100,7 @@ export default function RegisterPageFormAction() {
                 name="businessName"
                 className="w-full px-3 py-2 border rounded-md"
                 required
+                disabled={isPending}
               />
             </div>
             <div>
@@ -111,6 +110,7 @@ export default function RegisterPageFormAction() {
                 name="businessEmail"
                 className="w-full px-3 py-2 border rounded-md"
                 required
+                disabled={isPending}
               />
             </div>
             <div>
@@ -119,6 +119,7 @@ export default function RegisterPageFormAction() {
                 type="text"
                 name="businessPhone"
                 className="w-full px-3 py-2 border rounded-md"
+                disabled={isPending}
               />
             </div>
             <div>
@@ -127,6 +128,7 @@ export default function RegisterPageFormAction() {
                 type="text"
                 name="businessAddress"
                 className="w-full px-3 py-2 border rounded-md"
+                disabled={isPending}
               />
             </div>
             <div>
@@ -135,6 +137,7 @@ export default function RegisterPageFormAction() {
                 type="url"
                 name="businessWebsite"
                 className="w-full px-3 py-2 border rounded-md"
+                disabled={isPending}
               />
             </div>
             <div>
@@ -143,6 +146,7 @@ export default function RegisterPageFormAction() {
                 name="businessDescription"
                 className="w-full px-3 py-2 border rounded-md"
                 rows={3}
+                disabled={isPending}
               ></textarea>
             </div>
           </>
@@ -150,19 +154,25 @@ export default function RegisterPageFormAction() {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+          disabled={isPending}
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {mode === UserRole.CUSTOMER ? "Register as Customer" : "Register as Vendor"}
+          {isPending
+            ? "Creating Account..."
+            : mode === UserRole.CUSTOMER
+            ? "Register as Customer"
+            : "Register as Vendor"}
         </button>
         <div className="text-center mt-4">
-  <a href="/login" className="text-sm text-gray-700 hover:underline">
-    Already have an account? Sign in here
-  </a>
-</div>
-
+          <a href="/login" className="text-sm text-gray-700 hover:underline">
+            Already have an account? Sign in here
+          </a>
+        </div>
       </form>
 
-      {error && <p className="mt-4 text-center text-red-600">{error}</p>}
+      {state?.error && (
+        <p className="mt-4 text-center text-red-600">{state.error}</p>
+      )}
     </div>
   );
 }

@@ -1,6 +1,14 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import { authClient } from "@/auth-client";
+import { getCartCount } from "@/lib/actions/cart_actions";
 
 interface CartContextType {
   cartCount: number;
@@ -16,31 +24,26 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartCount, setCartCount] = useState(0);
+  const { data: session } = authClient.useSession();
 
-  const fetchCartItems = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+  const fetchCartItems = useCallback(async () => {
+    if (!session?.user) {
+      // If not logged in, cart count is 0
+      setCartCount(0);
+      return;
+    }
 
     try {
-      const res = await fetch('/api/cart', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        const totalItems = data.reduce(
-          (sum: number, item: any) => sum + item.quantity,
-          0
-        );
-        setCartCount(totalItems);
-      }
+      const count = await getCartCount();
+      setCartCount(count);
     } catch (err) {
-      console.error('Failed to refresh cart:', err);
+      console.error("Failed to refresh cart:", err);
     }
-  };
+  }, [session?.user]);
 
   useEffect(() => {
     fetchCartItems();
-  }, []);
+  }, [fetchCartItems]);
 
   return (
     <CartContext.Provider value={{ cartCount, fetchCartItems }}>

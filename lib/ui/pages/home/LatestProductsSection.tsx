@@ -3,7 +3,6 @@ import styles from "./LatestProductsSection.module.css";
 import ProductCard from "@/lib/ui/components/productCard";
 
 export default async function LatestProductsSection() {
-
   const products = await getProducts();
 
   return (

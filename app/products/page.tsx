@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -15,7 +15,7 @@ export default function AllProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filtered, setFiltered] = useState<Product[]>([]);
   const searchParams = useSearchParams();
-  const searchTerm = searchParams.get('search') || '';
+  const searchTerm = searchParams.get("search") || "";
 
   useEffect(() => {
     async function fetchProducts() {

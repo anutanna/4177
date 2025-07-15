@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import styles from './PromoBannerSection.module.css';
-import { Button } from '@/lib/ui/components/button';
-import Link from 'next/link';
+import styles from "./PromoBannerSection.module.css";
+import { Button } from "@/lib/ui/components/button";
+import Link from "next/link";
 
 export default function PromoBannerSection() {
   return (

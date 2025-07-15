@@ -23,37 +23,26 @@ enum OrderStatus {
 }
 
 model User {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String     @unique
-  password  String
-  address   String?
-  phone     String?
-  avatar    String?
-  cartItems CartItem[]
-  role      UserRole   @default(CUSTOMER)
-
-  orders   Order[]    @relation("OrderUser")
-  business Business[] @relation("BusinessUser")
-
-  passwordResetTokens PasswordResetToken[]
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String  @unique
+  emailVerified Boolean
+  image         String?
+  address       String?
+  phone         String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  role     UserRole   @default(CUSTOMER)
+  orders   Order[]    @relation("OrderUser")
+  business Business[] @relation("BusinessUser")
+
+  cartItems CartItem[]
+  sessions  Session[]
+  accounts  Account[]
+
   @@map("users")
-}
-
-model PasswordResetToken {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("password_reset_tokens")
 }
 
 model Business {
@@ -205,4 +194,49 @@ model CartItem {
 
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
+}
+
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  accountId             String
+  providerId            String
+  userId                String    @db.ObjectId
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
 }

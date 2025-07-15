@@ -1,12 +1,13 @@
-import { PrismaClient, UserRole, OrderStatus, Prisma } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import { PrismaClient, UserRole, OrderStatus, Prisma } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seeding...');
+  console.log("🌱 Starting database seeding...");
 
   // Clear existing data in the correct order (due to foreign key constraints)
+  await prisma.cartItem.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.productImage.deleteMany();
@@ -15,74 +16,82 @@ async function main() {
   await prisma.productCategory.deleteMany();
   await prisma.business.deleteMany();
   await prisma.brand.deleteMany();
+  await prisma.passwordResetToken.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log('🗑️  Cleared existing data');
+  console.log("🗑️  Cleared existing data");
 
   // Create Users (mix of customers, vendors, and admin)
   const users = [
     {
-      name: 'John Doe',
-      email: 'admin@localmarket.com',
-      password: 'admin123',
-      address: '123 Admin Ave, Halifax, NS',
-      phone: '902-123-4567',
+      name: "John Doe",
+      email: "admin@localmarket.com",
+      password: "admin123",
+      address: "123 Admin Ave, Halifax, NS",
+      phone: "902-123-4567",
       role: UserRole.ADMIN,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+      avatar:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
     },
     {
-      name: 'Sarah Miller',
-      email: 'sarah.miller@gmail.com',
-      password: 'sarah123',
-      address: '456 Spring Garden Rd, Halifax, NS',
-      phone: '902-555-0101',
+      name: "Sarah Miller",
+      email: "sarah.miller@gmail.com",
+      password: "sarah123",
+      address: "456 Spring Garden Rd, Halifax, NS",
+      phone: "902-555-0101",
       role: UserRole.VENDOR,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5bb?w=150&h=150&fit=crop&crop=face'
+      avatar:
+        "https://images.unsplash.com/photo-1494790108755-2616b612b5bb?w=150&h=150&fit=crop&crop=face",
     },
     {
-      name: 'Mike Thompson',
-      email: 'mike.thompson@outlook.com',
-      password: 'mike123',
-      address: '789 Barrington St, Halifax, NS',
-      phone: '902-555-0102',
+      name: "Mike Thompson",
+      email: "mike.thompson@outlook.com",
+      password: "mike123",
+      address: "789 Barrington St, Halifax, NS",
+      phone: "902-555-0102",
       role: UserRole.VENDOR,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+      avatar:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     },
     {
-      name: 'James Rodriguez',
-      email: 'james.rodriguez@vendor.com',
-      password: 'james123',
-      address: '147 Gottingen St, Halifax, NS',
-      phone: '902-555-0106',
+      name: "James Rodriguez",
+      email: "james.rodriguez@vendor.com",
+      password: "james123",
+      address: "147 Gottingen St, Halifax, NS",
+      phone: "902-555-0106",
       role: UserRole.VENDOR,
-      avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=150&h=150&fit=crop&crop=face'
+      avatar:
+        "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=150&h=150&fit=crop&crop=face",
     },
     {
-      name: 'Emily Chen',
-      email: 'emily.chen@hotmail.com',
-      password: 'emily123',
-      address: '321 Quinpool Rd, Halifax, NS',
-      phone: '902-555-0103',
+      name: "Emily Chen",
+      email: "emily.chen@hotmail.com",
+      password: "emily123",
+      address: "321 Quinpool Rd, Halifax, NS",
+      phone: "902-555-0103",
       role: UserRole.CUSTOMER,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+      avatar:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
     },
     {
-      name: 'David Wilson',
-      email: 'david.wilson@yahoo.com',
-      password: 'david123',
-      address: '654 North St, Halifax, NS',
-      phone: '902-555-0104',
+      name: "David Wilson",
+      email: "david.wilson@yahoo.com",
+      password: "david123",
+      address: "654 North St, Halifax, NS",
+      phone: "902-555-0104",
       role: UserRole.CUSTOMER,
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face'
+      avatar:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
     },
     {
-      name: 'Lisa Anderson',
-      email: 'lisa.anderson@gmail.com',
-      password: 'lisa123',
-      address: '987 South St, Halifax, NS',
-      phone: '902-555-0105',
+      name: "Lisa Anderson",
+      email: "lisa.anderson@gmail.com",
+      password: "lisa123",
+      address: "987 South St, Halifax, NS",
+      phone: "902-555-0105",
       role: UserRole.CUSTOMER,
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face'
+      avatar:
+        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
     },
   ];
 
@@ -90,7 +99,7 @@ async function main() {
 
   for (const user of users) {
     const hashedPassword = await bcrypt.hash(user.password, 10);
-  
+
     const createdUser = await prisma.user.upsert({
       where: { email: user.email },
       update: {},
@@ -104,44 +113,42 @@ async function main() {
         role: user.role,
       },
     });
-  
+
     createdUsers.push(createdUser);
   }
-  
-  
 
   // Create Brands
   const brands: Prisma.BrandCreateInput[] = [
     {
-      name: 'FreshFarms',
-      description: 'Premium organic produce and dairy products',
-      logo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200&h=200&fit=crop',
-      website: 'https://freshfarms.ca'
+      name: "FreshFarms",
+      description: "Premium organic produce and dairy products",
+      logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200&h=200&fit=crop",
+      website: "https://freshfarms.ca",
     },
     {
-      name: 'Maritime Crafts',
-      description: 'Handcrafted items from local Nova Scotia artisans',
-      logo: 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=200&h=200&fit=crop',
-      website: 'https://maritimecrafts.ca'
+      name: "Maritime Crafts",
+      description: "Handcrafted items from local Nova Scotia artisans",
+      logo: "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=200&h=200&fit=crop",
+      website: "https://maritimecrafts.ca",
     },
     {
-      name: 'Atlantic Bakery',
-      description: 'Traditional baked goods and specialty breads',
-      logo: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
-      website: 'https://atlanticbakery.ca'
+      name: "Atlantic Bakery",
+      description: "Traditional baked goods and specialty breads",
+      logo: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop",
+      website: "https://atlanticbakery.ca",
     },
     {
-      name: 'Coastal Coffee',
-      description: 'Locally roasted coffee beans and specialty blends',
-      logo: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=200&h=200&fit=crop',
-      website: 'https://coastalcoffee.ca'
+      name: "Coastal Coffee",
+      description: "Locally roasted coffee beans and specialty blends",
+      logo: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=200&h=200&fit=crop",
+      website: "https://coastalcoffee.ca",
     },
     {
-      name: 'Ocean Bounty',
-      description: 'Fresh seafood from the Atlantic waters',
-      logo: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&h=200&fit=crop',
-      website: 'https://oceanbounty.ca'
-    }
+      name: "Ocean Bounty",
+      description: "Fresh seafood from the Atlantic waters",
+      logo: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&h=200&fit=crop",
+      website: "https://oceanbounty.ca",
+    },
   ];
 
   const createdBrands = [];
@@ -158,47 +165,47 @@ async function main() {
   // Create Product Categories
   const categories: Prisma.ProductCategoryCreateInput[] = [
     {
-      categoryName: 'Fresh Organic Produce',
-      categoryDescription: 'Fresh fruits and vegetables',
-      subCategoryName: 'Organic',
-      subCategoryDescription: 'Certified organic produce'
+      categoryName: "Fresh Organic Produce",
+      categoryDescription: "Fresh fruits and vegetables",
+      subCategoryName: "Organic",
+      subCategoryDescription: "Certified organic produce",
     },
     {
-      categoryName: 'Fresh Local Produce',
-      categoryDescription: 'Fresh fruits and vegetables',
-      subCategoryName: 'Local',
-      subCategoryDescription: 'Locally grown produce'
+      categoryName: "Fresh Local Produce",
+      categoryDescription: "Fresh fruits and vegetables",
+      subCategoryName: "Local",
+      subCategoryDescription: "Locally grown produce",
     },
     {
-      categoryName: 'Dairy & Eggs',
-      categoryDescription: 'Fresh dairy products and farm eggs',
-      subCategoryName: 'Organic Dairy',
-      subCategoryDescription: 'Organic milk, cheese, and yogurt'
+      categoryName: "Dairy & Eggs",
+      categoryDescription: "Fresh dairy products and farm eggs",
+      subCategoryName: "Organic Dairy",
+      subCategoryDescription: "Organic milk, cheese, and yogurt",
     },
     {
-      categoryName: 'Baked Goods',
-      categoryDescription: 'Fresh breads, pastries, and desserts',
-      subCategoryName: 'Artisan Breads',
-      subCategoryDescription: 'Handcrafted artisan breads'
+      categoryName: "Baked Goods",
+      categoryDescription: "Fresh breads, pastries, and desserts",
+      subCategoryName: "Artisan Breads",
+      subCategoryDescription: "Handcrafted artisan breads",
     },
     {
-      categoryName: 'Beverages',
-      categoryDescription: 'Coffee, tea, and specialty drinks',
-      subCategoryName: 'Coffee',
-      subCategoryDescription: 'Roasted coffee beans and ground coffee'
+      categoryName: "Beverages",
+      categoryDescription: "Coffee, tea, and specialty drinks",
+      subCategoryName: "Coffee",
+      subCategoryDescription: "Roasted coffee beans and ground coffee",
     },
     {
-      categoryName: 'Seafood',
-      categoryDescription: 'Fresh and frozen seafood',
-      subCategoryName: 'Fresh Fish',
-      subCategoryDescription: 'Daily fresh catch from local waters'
+      categoryName: "Seafood",
+      categoryDescription: "Fresh and frozen seafood",
+      subCategoryName: "Fresh Fish",
+      subCategoryDescription: "Daily fresh catch from local waters",
     },
     {
-      categoryName: 'Handcrafted Items',
-      categoryDescription: 'Locally made crafts and artisan goods',
-      subCategoryName: 'Home Decor',
-      subCategoryDescription: 'Handmade decorative items'
-    }
+      categoryName: "Handcrafted Items",
+      categoryDescription: "Locally made crafts and artisan goods",
+      subCategoryName: "Home Decor",
+      subCategoryDescription: "Handmade decorative items",
+    },
   ];
 
   const createdCategories = [];
@@ -211,41 +218,46 @@ async function main() {
   console.log(`✅ Created ${createdCategories.length} product categories`);
 
   // Create Businesses (only for vendor users)
-  const vendorUsers = createdUsers.filter(user => user.role === UserRole.VENDOR);
+  const vendorUsers = createdUsers.filter(
+    (user) => user.role === UserRole.VENDOR
+  );
   const businesses = [
     {
       userOwnerId: vendorUsers[0].id, // Sarah Miller
-      name: 'Halifax Organic Market',
-      email: 'info@halifaxorganic.com',
-      phone: '902-444-0001',
-      address: '1234 Organic Way, Halifax, NS',
-      website: 'https://halifaxorganic.com',
-      logo: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&h=200&fit=crop',
-      description: 'Your local source for fresh, organic produce and sustainable goods.',
-      rating: 4.8
+      name: "Halifax Organic Market",
+      email: "info@halifaxorganic.com",
+      phone: "902-444-0001",
+      address: "1234 Organic Way, Halifax, NS",
+      website: "https://halifaxorganic.com",
+      logo: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&h=200&fit=crop",
+      description:
+        "Your local source for fresh, organic produce and sustainable goods.",
+      rating: 4.8,
     },
     {
       userOwnerId: vendorUsers[1].id, // Mike Thompson
-      name: 'Maritime Artisan Co.',
-      email: 'hello@maritimeartisan.com',
-      phone: '902-444-0002',
-      address: '5678 Craft Lane, Halifax, NS',
-      website: 'https://maritimeartisan.com',
-      logo: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=200&h=200&fit=crop',
-      description: 'Showcasing the finest handcrafted goods from Nova Scotia artisans.',
-      rating: 4.6
+      name: "Maritime Artisan Co.",
+      email: "hello@maritimeartisan.com",
+      phone: "902-444-0002",
+      address: "5678 Craft Lane, Halifax, NS",
+      website: "https://maritimeartisan.com",
+      logo: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=200&h=200&fit=crop",
+      description:
+        "Showcasing the finest handcrafted goods from Nova Scotia artisans.",
+      rating: 4.6,
     },
     {
       userOwnerId: vendorUsers[2].id, // James Rodriguez
-      name: 'Seaside Specialty Foods',
-      email: 'orders@seasidefoods.com',
-      phone: '902-444-0003',
-      address: '9012 Harbor View, Halifax, NS',
-      website: 'https://seasidefoods.com',
-      logo: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&h=200&fit=crop',
-      description: 'Premium seafood, baked goods, and gourmet specialties from the Atlantic.',
-      rating: 4.9
-    }
+      name: "Seaside Specialty Foods",
+      email: "orders@seasidefoods.com",
+      phone: "902-444-0003",
+      address: "9012 Harbor View, Halifax, NS",
+      website: "https://seasidefoods.com",
+      logo: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&h=200&fit=crop",
+      description:
+        "Premium seafood, baked goods, and gourmet specialties from the Atlantic.",
+      rating: 4.9,
+    },
   ];
 
   const createdBusinesses = [];
@@ -261,32 +273,32 @@ async function main() {
   const products = [
     // Halifax Organic Market products
     {
-      name: 'Organic Kale Bundle',
-      description: 'Fresh organic kale, perfect for smoothies and salads',
+      name: "Organic Kale Bundle",
+      description: "Fresh organic kale, perfect for smoothies and salads",
       price: 4.99,
       stock: 25,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id, // FreshFarms
     },
     {
-      name: 'Farm Fresh Eggs (Dozen)',
-      description: 'Free-range eggs from local organic farms',
+      name: "Farm Fresh Eggs (Dozen)",
+      description: "Free-range eggs from local organic farms",
       price: 6.99,
       stock: 40,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id,
     },
     {
-      name: 'Organic Honey (500ml)',
-      description: 'Pure wildflower honey from Nova Scotia beekeepers',
+      name: "Organic Honey (500ml)",
+      description: "Pure wildflower honey from Nova Scotia beekeepers",
       price: 12.99,
       stock: 15,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id,
     },
     {
-      name: 'Heirloom Tomatoes (1lb)',
-      description: 'Colorful heirloom tomatoes, grown without pesticides',
+      name: "Heirloom Tomatoes (1lb)",
+      description: "Colorful heirloom tomatoes, grown without pesticides",
       price: 7.99,
       stock: 20,
       businessId: createdBusinesses[0].id,
@@ -294,70 +306,71 @@ async function main() {
     },
     // Maritime Artisan Co. products
     {
-      name: 'Hand-carved Wooden Bowl',
-      description: 'Beautiful maple wood serving bowl, handcrafted by local artisans',
-      price: 45.00,
+      name: "Hand-carved Wooden Bowl",
+      description:
+        "Beautiful maple wood serving bowl, handcrafted by local artisans",
+      price: 45.0,
       stock: 8,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id, // Maritime Crafts
     },
     {
-      name: 'Lighthouse Ceramic Mug',
-      description: 'Handpainted ceramic mug featuring Nova Scotia lighthouses',
+      name: "Lighthouse Ceramic Mug",
+      description: "Handpainted ceramic mug featuring Nova Scotia lighthouses",
       price: 24.99,
       stock: 12,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id,
     },
     {
-      name: 'Knitted Wool Scarf',
-      description: 'Warm, cozy scarf made from local sheep wool',
-      price: 35.00,
+      name: "Knitted Wool Scarf",
+      description: "Warm, cozy scarf made from local sheep wool",
+      price: 35.0,
       stock: 6,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id,
     },
     // Seaside Specialty Foods products
     {
-      name: 'Atlantic Salmon Fillet (1lb)',
-      description: 'Fresh Atlantic salmon, caught daily by local fishermen',
+      name: "Atlantic Salmon Fillet (1lb)",
+      description: "Fresh Atlantic salmon, caught daily by local fishermen",
       price: 18.99,
       stock: 10,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[4].id, // Ocean Bounty
     },
     {
-      name: 'Sourdough Bread Loaf',
-      description: 'Traditional sourdough bread, baked fresh daily',
+      name: "Sourdough Bread Loaf",
+      description: "Traditional sourdough bread, baked fresh daily",
       price: 5.99,
       stock: 30,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[2].id, // Atlantic Bakery
     },
     {
-      name: 'Maritime Dark Roast Coffee (454g)',
-      description: 'Rich, bold coffee blend roasted locally',
+      name: "Maritime Dark Roast Coffee (454g)",
+      description: "Rich, bold coffee blend roasted locally",
       price: 16.99,
       stock: 22,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[3].id, // Coastal Coffee
     },
     {
-      name: 'Lobster Roll Kit',
-      description: 'Everything you need for authentic Maritime lobster rolls',
+      name: "Lobster Roll Kit",
+      description: "Everything you need for authentic Maritime lobster rolls",
       price: 29.99,
       stock: 5,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[4].id, // Ocean Bounty
     },
     {
-      name: 'Blueberry Scones (6-pack)',
-      description: 'Fresh baked scones with wild Nova Scotia blueberries',
+      name: "Blueberry Scones (6-pack)",
+      description: "Fresh baked scones with wild Nova Scotia blueberries",
       price: 8.99,
       stock: 18,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[2].id, // Atlantic Bakery
-    }
+    },
   ];
 
   const createdProducts = [];
@@ -372,42 +385,98 @@ async function main() {
   // Create Product Images
   const productImages = [
     // Kale Bundle
-    { productId: createdProducts[0].id, url: 'https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&h=400&fit=crop', altText: 'Fresh organic kale bundle' },
-    { productId: createdProducts[0].id, url: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop', altText: 'Kale leaves close-up' },
+    {
+      productId: createdProducts[0].id,
+      url: "https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400&h=400&fit=crop",
+      altText: "Fresh organic kale bundle",
+    },
+    {
+      productId: createdProducts[0].id,
+      url: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop",
+      altText: "Kale leaves close-up",
+    },
 
     // Farm Eggs
-    { productId: createdProducts[1].id, url: 'https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?w=400&h=400&fit=crop', altText: 'Fresh farm eggs in carton' },
-    { productId: createdProducts[1].id, url: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&h=400&fit=crop', altText: 'Free-range chickens' },
+    {
+      productId: createdProducts[1].id,
+      url: "https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?w=400&h=400&fit=crop",
+      altText: "Fresh farm eggs in carton",
+    },
+    {
+      productId: createdProducts[1].id,
+      url: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&h=400&fit=crop",
+      altText: "Free-range chickens",
+    },
 
     // Organic Honey
-    { productId: createdProducts[2].id, url: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&h=400&fit=crop', altText: 'Glass jar of golden honey' },
+    {
+      productId: createdProducts[2].id,
+      url: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&h=400&fit=crop",
+      altText: "Glass jar of golden honey",
+    },
 
     // Heirloom Tomatoes
-    { productId: createdProducts[3].id, url: 'https://images.unsplash.com/photo-1592841200221-e8be6b8e8d63?w=400&h=400&fit=crop', altText: 'Colorful heirloom tomatoes' },
+    {
+      productId: createdProducts[3].id,
+      url: "https://images.unsplash.com/photo-1566383444833-43afb88e5dc9?w=400&h=400&fit=crop",
+      altText: "Colorful heirloom tomatoes",
+    },
 
     // Wooden Bowl
-    { productId: createdProducts[4].id, url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop', altText: 'Hand-carved wooden bowl' },
+    {
+      productId: createdProducts[4].id,
+      url: "https://images.unsplash.com/photo-1658280388403-09f61d0eb311?w=400&h=400&fit=crop",
+      altText: "Hand-carved wooden bowl",
+    },
 
     // Ceramic Mug
-    { productId: createdProducts[5].id, url: 'https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=400&h=400&fit=crop', altText: 'Lighthouse ceramic mug' },
+    {
+      productId: createdProducts[5].id,
+      url: "https://images.unsplash.com/photo-1646434048431-e8659a6946ee?w=400&h=400&fit=crop",
+      altText: "Lighthouse ceramic mug",
+    },
 
     // Wool Scarf
-    { productId: createdProducts[6].id, url: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5d?w=400&h=400&fit=crop', altText: 'Knitted wool scarf' },
+    {
+      productId: createdProducts[6].id,
+      url: "https://images.unsplash.com/photo-1502550145-cd245e2ec6eb?w=400&h=400&fit=crop",
+      altText: "Knitted wool scarf",
+    },
 
     // Salmon
-    { productId: createdProducts[7].id, url: 'https://images.unsplash.com/photo-1519708227418-c8abd5a437a0?w=400&h=400&fit=crop', altText: 'Fresh Atlantic salmon fillet' },
+    {
+      productId: createdProducts[7].id,
+      url: "https://images.unsplash.com/photo-1559058789-672da06263d8?w=400&h=400&fit=crop",
+      altText: "Fresh Atlantic salmon fillet",
+    },
 
     // Sourdough
-    { productId: createdProducts[8].id, url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop', altText: 'Fresh sourdough bread loaf' },
+    {
+      productId: createdProducts[8].id,
+      url: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop",
+      altText: "Fresh sourdough bread loaf",
+    },
 
     // Coffee
-    { productId: createdProducts[9].id, url: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400&h=400&fit=crop', altText: 'Dark roast coffee beans' },
+    {
+      productId: createdProducts[9].id,
+      url: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400&h=400&fit=crop",
+      altText: "Dark roast coffee beans",
+    },
 
     // Lobster Kit
-    { productId: createdProducts[10].id, url: 'https://images.unsplash.com/photo-1583623375995-3ae9d0a2b3c7?w=400&h=400&fit=crop', altText: 'Lobster roll ingredients' },
+    {
+      productId: createdProducts[10].id,
+      url: "https://images.unsplash.com/photo-1707995546402-5057206e5161?w=400&h=400&fit=crop",
+      altText: "Lobster roll ingredients",
+    },
 
     // Blueberry Scones
-    { productId: createdProducts[11].id, url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop', altText: 'Fresh blueberry scones' },
+    {
+      productId: createdProducts[11].id,
+      url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop",
+      altText: "Fresh blueberry scones",
+    },
   ];
 
   for (const image of productImages) {
@@ -449,10 +518,14 @@ async function main() {
       data: mapping,
     });
   }
-  console.log(`✅ Created ${productCategoryMappings.length} product-category relationships`);
+  console.log(
+    `✅ Created ${productCategoryMappings.length} product-category relationships`
+  );
 
   // Create Orders
-  const customerUsers = createdUsers.filter(user => user.role === UserRole.CUSTOMER);
+  const customerUsers = createdUsers.filter(
+    (user) => user.role === UserRole.CUSTOMER
+  );
   const orders = [
     {
       userId: customerUsers[0].id, // Emily Chen
@@ -483,7 +556,7 @@ async function main() {
       businessId: createdBusinesses[0].id, // Halifax Organic Market
       total: 19.98,
       status: OrderStatus.COMPLETED,
-    }
+    },
   ];
 
   const createdOrders = [];
@@ -498,28 +571,98 @@ async function main() {
   // Create Order Items
   const orderItems = [
     // Order 1 (Emily -> Halifax Organic)
-    { orderId: createdOrders[0].id, productId: createdProducts[0].id, quantity: 2, price: 4.99 }, // Kale x2
-    { orderId: createdOrders[0].id, productId: createdProducts[1].id, quantity: 1, price: 6.99 }, // Eggs x1
-    { orderId: createdOrders[0].id, productId: createdProducts[3].id, quantity: 1, price: 7.99 }, // Tomatoes x1
+    {
+      orderId: createdOrders[0].id,
+      productId: createdProducts[0].id,
+      quantity: 2,
+      price: 4.99,
+    }, // Kale x2
+    {
+      orderId: createdOrders[0].id,
+      productId: createdProducts[1].id,
+      quantity: 1,
+      price: 6.99,
+    }, // Eggs x1
+    {
+      orderId: createdOrders[0].id,
+      productId: createdProducts[3].id,
+      quantity: 1,
+      price: 7.99,
+    }, // Tomatoes x1
 
     // Order 2 (David -> Maritime Artisan)
-    { orderId: createdOrders[1].id, productId: createdProducts[4].id, quantity: 1, price: 45.00 }, // Wooden Bowl x1
-    { orderId: createdOrders[1].id, productId: createdProducts[5].id, quantity: 1, price: 24.99 }, // Ceramic Mug x1
+    {
+      orderId: createdOrders[1].id,
+      productId: createdProducts[4].id,
+      quantity: 1,
+      price: 45.0,
+    }, // Wooden Bowl x1
+    {
+      orderId: createdOrders[1].id,
+      productId: createdProducts[5].id,
+      quantity: 1,
+      price: 24.99,
+    }, // Ceramic Mug x1
 
     // Order 3 (Lisa -> Seaside Foods)
-    { orderId: createdOrders[2].id, productId: createdProducts[7].id, quantity: 1, price: 18.99 }, // Salmon x1
-    { orderId: createdOrders[2].id, productId: createdProducts[8].id, quantity: 2, price: 5.99 }, // Sourdough x2
-    { orderId: createdOrders[2].id, productId: createdProducts[9].id, quantity: 1, price: 16.99 }, // Coffee x1
-    { orderId: createdOrders[2].id, productId: createdProducts[11].id, quantity: 1, price: 8.99 }, // Scones x1
+    {
+      orderId: createdOrders[2].id,
+      productId: createdProducts[7].id,
+      quantity: 1,
+      price: 18.99,
+    }, // Salmon x1
+    {
+      orderId: createdOrders[2].id,
+      productId: createdProducts[8].id,
+      quantity: 2,
+      price: 5.99,
+    }, // Sourdough x2
+    {
+      orderId: createdOrders[2].id,
+      productId: createdProducts[9].id,
+      quantity: 1,
+      price: 16.99,
+    }, // Coffee x1
+    {
+      orderId: createdOrders[2].id,
+      productId: createdProducts[11].id,
+      quantity: 1,
+      price: 8.99,
+    }, // Scones x1
 
     // Order 4 (Emily -> Seaside Foods)
-    { orderId: createdOrders[3].id, productId: createdProducts[8].id, quantity: 1, price: 5.99 }, // Sourdough x1
-    { orderId: createdOrders[3].id, productId: createdProducts[9].id, quantity: 1, price: 16.99 }, // Coffee x1
-    { orderId: createdOrders[3].id, productId: createdProducts[11].id, quantity: 1, price: 8.99 }, // Scones x1 (different from calculated total - this is intentional for demo)
+    {
+      orderId: createdOrders[3].id,
+      productId: createdProducts[8].id,
+      quantity: 1,
+      price: 5.99,
+    }, // Sourdough x1
+    {
+      orderId: createdOrders[3].id,
+      productId: createdProducts[9].id,
+      quantity: 1,
+      price: 16.99,
+    }, // Coffee x1
+    {
+      orderId: createdOrders[3].id,
+      productId: createdProducts[11].id,
+      quantity: 1,
+      price: 8.99,
+    }, // Scones x1 (different from calculated total - this is intentional for demo)
 
     // Order 5 (David -> Halifax Organic)
-    { orderId: createdOrders[4].id, productId: createdProducts[2].id, quantity: 1, price: 12.99 }, // Honey x1
-    { orderId: createdOrders[4].id, productId: createdProducts[1].id, quantity: 1, price: 6.99 }, // Eggs x1
+    {
+      orderId: createdOrders[4].id,
+      productId: createdProducts[2].id,
+      quantity: 1,
+      price: 12.99,
+    }, // Honey x1
+    {
+      orderId: createdOrders[4].id,
+      productId: createdProducts[1].id,
+      quantity: 1,
+      price: 6.99,
+    }, // Eggs x1
   ];
 
   for (const orderItem of orderItems) {
@@ -534,15 +677,18 @@ async function main() {
     const items = await prisma.orderItem.findMany({
       where: { orderId: order.id },
     });
-    const total = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    const total = items.reduce(
+      (sum, item) => sum + item.quantity * item.price,
+      0
+    );
     await prisma.order.update({
       where: { id: order.id },
       data: { total },
     });
   }
-  console.log('✅ Updated order totals');
+  console.log("✅ Updated order totals");
 
-  console.log('🎉 Database seeding completed successfully!');
+  console.log("🎉 Database seeding completed successfully!");
   console.log(`
   📊 Summary:
   - ${createdUsers.length} users (including ${vendorUsers.length} vendors and ${customerUsers.length} customers)
@@ -559,11 +705,11 @@ async function main() {
 
 main()
   .then(() => {
-    console.log('Seeding successful');
+    console.log("Seeding successful");
     process.exit(0);
   })
-  .catch(e => {
-    console.error('Seeding error:', e);
+  .catch((e) => {
+    console.error("Seeding error:", e);
     process.exit(1);
   })
   .finally(async () => {

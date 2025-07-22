@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       name: user.name,
       role: user.role, 
     },
-    JWT_SECRET,
+    process.env.JWT_SECRET!,
     { expiresIn: '2h' }
   );
 

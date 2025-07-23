@@ -1,14 +1,13 @@
 import { getProducts } from "@/lib/actions/db_product_actions";
-import styles from "./LatestProductsSection.module.css";
 import ProductCard from "@/lib/ui/components/productCard";
 
 export default async function LatestProductsSection() {
   const products = await getProducts();
 
   return (
-    <section className={styles.latestProducts}>
-      <h3 className={styles.heading}>Latest Products</h3>
-      <div className={styles.grid}>
+    <section className="py-12 px-6">
+      <h3 className="text-2xl font-bold mb-8 text-center">Latest Products</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {products.map((product) => (
           <ProductCard
             key={product.id}

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/auth-client";
-import styles from "./LoginPage.module.css";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
@@ -40,14 +39,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <form onSubmit={handleSubmit} className={styles.formWrapper}>
-          <h1 className={styles.title}>Log In</h1>
-          {error && <p className={styles.errorMsg}>{error}</p>}
+    <div className="flex flex-col">
+      <main className="flex-1 flex items-center justify-center bg-gray-50 py-20 px-4">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg mx-4"
+        >
+          <h1 className="text-2xl font-bold text-center">Log In</h1>
+          {error && <p className="text-red-600 text-center">{error}</p>}
 
           <div>
-            <label htmlFor="email" className={styles.fieldLabel}>
+            <label htmlFor="email" className="block mb-1 font-medium">
               Email
             </label>
             <input
@@ -56,12 +58,12 @@ export default function LoginPage() {
               type="email"
               required
               disabled={loading}
-              className={styles.fieldInput}
+              className="w-full py-2 px-3 border border-gray-300 mb-4 focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className={styles.fieldLabel}>
+            <label htmlFor="password" className="block mb-1 font-medium">
               Password
             </label>
             <input
@@ -70,11 +72,15 @@ export default function LoginPage() {
               type="password"
               required
               disabled={loading}
-              className={styles.fieldInput}
+              className="w-full py-2 px-3 border border-gray-300 mb-4 focus:border-blue-500"
             />
           </div>
 
-          <button type="submit" disabled={loading} className={styles.submitBtn}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 hover:bg-blue-700"
+          >
             {loading ? "Signing In..." : "Sign In"}
           </button>
 

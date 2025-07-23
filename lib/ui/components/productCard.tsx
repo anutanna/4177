@@ -4,6 +4,7 @@ import { useCart } from "@/lib/ui/context/CartContext"; // 👈 adjust the path 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { FaEye, FaTag } from "react-icons/fa";
 import { authClient } from "@/auth-client";
 import { addToCart } from "@/lib/actions/cart_actions";
 
@@ -43,28 +44,47 @@ export default function ProductCard({ name, price, image, id }: ProductProps) {
 
   return (
     <div className="card w-full max-w-xs bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-      <figure className="px-4 pt-4">
-        <Image
-          src={image}
-          alt={name}
-          className="rounded-xl h-40 object-cover w-full"
-          width={400}
-          height={400}
-        />
-      </figure>
-      <div className="card-body items-center text-center px-4 pb-4">
+      <Link href={`/products/${id}`} aria-label={`View details for ${name}`}>
+        <figure className="px-4 pt-4">
+          <Image
+            src={image}
+            alt={name}
+            className="rounded-xl h-40 object-cover w-full"
+            width={400}
+            height={400}
+          />
+        </figure>
+      </Link>
+      <div className="card-body items-center text-center pb-4 p-4">
         <h2 className="card-title text-base font-semibold">{name}</h2>
-        <p className="text-sm text-gray-700">Price: ${price}</p>
-        <button
-          onClick={handleAddToCart}
-          className="btn btn-primary btn-sm"
-          aria-label={`Add ${name} to cart`}
-        >
-          Add to Cart
-        </button>
-        <Link href={`/products/${id}`} aria-label={`View details for ${name}`}>
-          <button className="btn btn-outline btn-sm">View Details</button>
-        </Link>
+        <p className="w-full text-center mt-2 mb-4 text-xl font-bold flex items-center justify-center gap-1">
+          <span>${Number(price).toFixed(2)}</span>
+          <FaTag className="text-red-800 ml-2" />
+        </p>
+        <div className="flex items-center gap-2 w-full">
+          <button
+            onClick={handleAddToCart}
+            className="btn flex-1 h-10 text-white shadow-sm text-base font-semibold border-none"
+            style={{
+              background: "linear-gradient(to right, #21C1B9, #1A71D5)",
+            }}
+            aria-label={`Add ${name} to cart`}
+          >
+            Add to Cart
+          </button>
+          <Link
+            href={`/products/${id}`}
+            aria-label={`View details for ${name}`}
+          >
+            <button
+              className="btn w-10 h-10 flex items-center justify-center p-0 shadow-sm bg-gray-100 hover:bg-gray-200"
+              style={{ border: "none" }}
+              aria-label={`View details for ${name}`}
+            >
+              <FaEye className="text-gray-600" />
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );

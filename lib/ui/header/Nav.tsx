@@ -8,10 +8,7 @@ import { navItems } from "./navItems";
 export default function Nav() {
   return (
     <nav
-      className="hidden md:block w-full shadow-md relative z-10"
-      style={{
-        background: "linear-gradient(to right, #21C1B9, #1A71D5)",
-      }}
+      className="hidden md:block w-full shadow-md relative z-10 bg-gradient-to-r from-[#21C1B9] to-[#1A71D5]"
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-start">

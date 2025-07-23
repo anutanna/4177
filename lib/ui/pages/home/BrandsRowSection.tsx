@@ -1,16 +1,18 @@
-import styles from './BrandsRowSection.module.css';
+import Image from "next/image";
 
-const brandLogos = ['elvis', 'comax', 'mba', 'hp', 'nocoffee'];
+const brandLogos = ["elvis", "comax", "mba", "hp", "nocoffee"];
 
 export default function BrandsRowSection() {
   return (
-    <section className={styles.brandsRow}>
+    <section className="flex justify-center gap-6 py-8 px-4 bg-orange-50">
       {brandLogos.map((brand, index) => (
-        <img
+        <Image
           key={index}
           src={`/brands/${brand}.png`}
           alt={brand}
-          className={styles.logo}
+          width={48}
+          height={48}
+          className="object-contain"
         />
       ))}
     </section>

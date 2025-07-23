@@ -24,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="light">
-      <body className={`${inter.className} antialiased bg-orange-50`}>
+      <body className={`${inter.className} antialiased bg-gray-50`}>
         <CartProvider>
           <Header />
           <main className="container mx-auto p-4">

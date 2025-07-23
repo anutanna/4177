@@ -1,23 +1,33 @@
-import { getProducts } from "@/lib/actions/db_product_actions";
-import ProductCard from "@/lib/ui/components/productCard";
+import { MdFiberNew } from "react-icons/md";
+import ProductCarousel from "@/lib/ui/components/ProductCarousel";
+import { getLatestProducts } from "@/lib/actions/db_product_actions";
 
 export default async function LatestProductsSection() {
-  const products = await getProducts();
+  // Fetch products on the server
+  const products = await getLatestProducts(10);
+
+  if (products.length === 0) {
+    return (
+      <section className="py-12 px-4 sm:px-6">
+        <div className="flex items-center gap-3 mb-8">
+          <MdFiberNew className="text-green-600 text-xl" />
+          <h3 className="text-2xl font-bold">Latest Products</h3>
+        </div>
+        <div className="text-center text-gray-500">No products available</div>
+      </section>
+    );
+  }
 
   return (
-    <section className="py-12 px-6">
-      <h3 className="text-2xl font-bold mb-8 text-center">Latest Products</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            name={product.name}
-            image={product.images?.[0]?.url || "/placeholder.jpg"}
-            price={`${product.price}`}
-            id={product.id}
-          />
-        ))}
+    <section className="py-12 px-4 sm:px-6">
+      {/* Section Title with Icon - Left Aligned */}
+      <div className="flex items-center gap-3 mb-8">
+        <MdFiberNew className="text-green-600 text-2xl" />
+        <h3 className="text-2xl font-bold">Latest Products</h3>
       </div>
+
+      {/* Product Carousel - Client Component */}
+      <ProductCarousel products={products} />
     </section>
   );
 }

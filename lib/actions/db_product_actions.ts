@@ -11,12 +11,30 @@ export async function getProducts() {
         images: true,
       },
       orderBy: { createdAt: "desc" },
-      take: 15, // Limit to 5 latest products for the "Latest Products" section
+      take: 15, // Limit to 15 latest products for the "Latest Products" section
     });
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);
     throw new Error("Failed to fetch products");
+  }
+}
+
+export async function getLatestProducts(limit: number = 10) {
+  try {
+    const products = await db.product.findMany({
+      include: {
+        business: true,
+        brand: true,
+        images: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+    return products;
+  } catch (error) {
+    console.error("Error fetching latest products:", error);
+    throw new Error("Failed to fetch latest products");
   }
 }
 

@@ -56,7 +56,16 @@ export default function ProductCard({ name, price, image, id }: ProductProps) {
         </figure>
       </Link>
       <div className="card-body items-center text-center pb-4 p-4">
-        <h2 className="card-title text-base font-semibold">{name}</h2>
+        <h2
+          className="card-title text-base font-semibold h-12 flex items-center justify-center text-center overflow-hidden"
+          style={{
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
+          {name}
+        </h2>
         <p className="w-full text-center mt-2 mb-4 text-xl font-bold flex items-center justify-center gap-1">
           <span>${Number(price).toFixed(2)}</span>
           <FaTag className="text-red-800 ml-2" />

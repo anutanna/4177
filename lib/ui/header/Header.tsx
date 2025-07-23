@@ -12,6 +12,8 @@ import { useCart } from "@/lib/ui/context/CartContext";
 import { authClient } from "@/auth-client";
 import { UserRole } from "@prisma/client";
 import Drawer from "@/lib/ui/components/Drawer";
+import Nav from "./Nav";
+import { navItems } from "./navItems";
 
 interface Product {
   id: string;
@@ -222,6 +224,9 @@ export default function Header() {
         </div>
       </header>
 
+      {/* Navigation Bar */}
+      <Nav />
+
       {/* Mobile Search Bar */}
       {showSearchBar && (
         <div className="md:hidden bg-white border-b border-gray-200">
@@ -279,19 +284,32 @@ export default function Header() {
 
           {/* Navigation Links */}
           <nav className="space-y-2">
+            {/* Main navigation items */}
+            {navItems.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <Link
+                  key={index}
+                  href={item.href || "#"}
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setIsDrawerOpen(false)}
+                >
+                  <IconComponent className="text-lg" />
+                  {item.label}
+                </Link>
+              );
+            })}
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-4"></div>
+
+            {/* Additional links */}
             <Link
               href="/"
               className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
               onClick={() => setIsDrawerOpen(false)}
             >
               Home
-            </Link>
-            <Link
-              href="/products"
-              className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
-              onClick={() => setIsDrawerOpen(false)}
-            >
-              Products
             </Link>
             <Link
               href="/cart"

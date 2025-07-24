@@ -398,6 +398,130 @@ async function main() {
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[2].id, // Atlantic Bakery
     },
+    // Additional Halifax Organic Market products
+    {
+      name: "Organic Spinach (Bunch)",
+      description: "Fresh organic baby spinach, perfect for salads",
+      price: 3.99,
+      stock: 35,
+      businessId: createdBusinesses[0].id,
+      brandId: createdBrands[0].id, // FreshFarms
+    },
+    {
+      name: "Organic Carrots (2lbs)",
+      description: "Sweet organic carrots, locally grown",
+      price: 4.49,
+      stock: 28,
+      businessId: createdBusinesses[0].id,
+      brandId: createdBrands[0].id, // FreshFarms
+    },
+    {
+      name: "Fresh Organic Milk (1L)",
+      description: "Creamy organic milk from grass-fed cows",
+      price: 5.99,
+      stock: 20,
+      businessId: createdBusinesses[0].id,
+      brandId: createdBrands[0].id, // FreshFarms
+    },
+    {
+      name: "Artisan Goat Cheese (200g)",
+      description: "Creamy goat cheese made by local dairy farmers",
+      price: 14.99,
+      stock: 12,
+      businessId: createdBusinesses[0].id,
+      brandId: createdBrands[0].id, // FreshFarms
+    },
+    {
+      name: "Organic Red Apples (3lbs)",
+      description: "Crisp organic red apples from Nova Scotia orchards",
+      price: 6.99,
+      stock: 25,
+      businessId: createdBusinesses[0].id,
+      brandId: createdBrands[0].id, // FreshFarms
+    },
+    // Additional Maritime Artisan Co. products
+    {
+      name: "Handwoven Basket",
+      description: "Traditional woven basket made from local willow",
+      price: 32.99,
+      stock: 7,
+      businessId: createdBusinesses[1].id,
+      brandId: createdBrands[1].id, // Maritime Crafts
+    },
+    {
+      name: "Sea Glass Jewelry Set",
+      description:
+        "Beautiful jewelry made from authentic Nova Scotia sea glass",
+      price: 58.99,
+      stock: 4,
+      businessId: createdBusinesses[1].id,
+      brandId: createdBrands[1].id, // Maritime Crafts
+    },
+    {
+      name: "Driftwood Wall Art",
+      description: "Unique wall art crafted from Atlantic driftwood",
+      price: 75.0,
+      stock: 3,
+      businessId: createdBusinesses[1].id,
+      brandId: createdBrands[1].id, // Maritime Crafts
+    },
+    {
+      name: "Hand-knitted Mittens",
+      description: "Warm wool mittens with traditional Maritime patterns",
+      price: 28.99,
+      stock: 10,
+      businessId: createdBusinesses[1].id,
+      brandId: createdBrands[1].id, // Maritime Crafts
+    },
+    {
+      name: "Pottery Dinner Set (4-piece)",
+      description: "Handcrafted ceramic dinner set fired in local kilns",
+      price: 89.99,
+      stock: 5,
+      businessId: createdBusinesses[1].id,
+      brandId: createdBrands[1].id, // Maritime Crafts
+    },
+    // Additional Seaside Specialty Foods products
+    {
+      name: "Fresh Haddock Fillet (1lb)",
+      description: "Premium haddock caught in the Bay of Fundy",
+      price: 15.99,
+      stock: 8,
+      businessId: createdBusinesses[2].id,
+      brandId: createdBrands[4].id, // Ocean Bounty
+    },
+    {
+      name: "Maple Walnut Bread",
+      description: "Sweet bread with local maple syrup and walnuts",
+      price: 7.99,
+      stock: 15,
+      businessId: createdBusinesses[2].id,
+      brandId: createdBrands[2].id, // Atlantic Bakery
+    },
+    {
+      name: "Earl Grey Tea Blend (100g)",
+      description: "Premium Earl Grey tea with bergamot oil",
+      price: 12.99,
+      stock: 20,
+      businessId: createdBusinesses[2].id,
+      brandId: createdBrands[3].id, // Coastal Coffee
+    },
+    {
+      name: "Smoked Mackerel (Whole)",
+      description: "Traditional cold-smoked Atlantic mackerel",
+      price: 22.99,
+      stock: 6,
+      businessId: createdBusinesses[2].id,
+      brandId: createdBrands[4].id, // Ocean Bounty
+    },
+    {
+      name: "Cinnamon Raisin Bagels (6-pack)",
+      description: "Fresh baked bagels with cinnamon and raisins",
+      price: 9.99,
+      stock: 25,
+      businessId: createdBusinesses[2].id,
+      brandId: createdBrands[2].id, // Atlantic Bakery
+    },
   ];
 
   const createdProducts = [];
@@ -504,6 +628,112 @@ async function main() {
       url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop",
       altText: "Fresh blueberry scones",
     },
+
+    // New product images for the 15 additional products
+    // Organic Spinach (product index 12)
+    {
+      productId: createdProducts[12].id,
+      url: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop",
+      altText: "Fresh organic spinach bunch",
+    },
+
+    // Organic Carrots (product index 13)
+    {
+      productId: createdProducts[13].id,
+      url: "https://images.unsplash.com/photo-1445282768818-728615cc910a?w=400&h=400&fit=crop",
+      altText: "Fresh organic carrots",
+    },
+
+    // Fresh Organic Milk (product index 14)
+    {
+      productId: createdProducts[14].id,
+      url: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=400&fit=crop",
+      altText: "Glass bottle of fresh organic milk",
+    },
+
+    // Artisan Goat Cheese (product index 15)
+    {
+      productId: createdProducts[15].id,
+      url: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400&h=400&fit=crop",
+      altText: "Artisan goat cheese wheel",
+    },
+
+    // Organic Red Apples (product index 16)
+    {
+      productId: createdProducts[16].id,
+      url: "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400&h=400&fit=crop",
+      altText: "Fresh red apples",
+    },
+
+    // Handwoven Basket (product index 17)
+    {
+      productId: createdProducts[17].id,
+      url: "https://images.unsplash.com/photo-1462726337252-4773ebc370ae?w=400&h=400&fit=crop",
+      altText: "Handwoven wicker basket",
+    },
+
+    // Sea Glass Jewelry Set (product index 18)
+    {
+      productId: createdProducts[18].id,
+      url: "https://images.unsplash.com/photo-1667320436052-1abd29003021?w=400&h=400&fit=crop",
+      altText: "Sea glass jewelry pieces",
+    },
+
+    // Driftwood Wall Art (product index 19)
+    {
+      productId: createdProducts[19].id,
+      url: "https://images.unsplash.com/photo-1641406755423-968570743031?w=400&h=400&fit=crop",
+      altText: "Driftwood wall art piece",
+    },
+
+    // Hand-knitted Mittens (product index 20)
+    {
+      productId: createdProducts[20].id,
+      url: "https://images.unsplash.com/photo-1598871955497-27e7814b405d?w=400&h=400&fit=crop",
+      altText: "Hand-knitted wool mittens",
+    },
+
+    // Pottery Dinner Set (product index 21)
+    {
+      productId: createdProducts[21].id,
+      url: "https://images.unsplash.com/photo-1607449145583-cd5df720994e?w=400&h=400&fit=crop",
+      altText: "Handcrafted pottery dinner set",
+    },
+
+    // Fresh Haddock Fillet (product index 22)
+    {
+      productId: createdProducts[22].id,
+      url: "https://images.unsplash.com/photo-1517115358639-5720b8e02219?w=400&h=400&fit=crop",
+      altText: "Fresh haddock fillet",
+    },
+
+    // Maple Walnut Bread (product index 23)
+    {
+      productId: createdProducts[23].id,
+      url: "https://images.unsplash.com/photo-1642333328966-f248191ff0da?w=400&h=400&fit=crop",
+      altText: "Maple walnut bread loaf",
+    },
+
+    // Earl Grey Tea Blend (product index 24)
+    {
+      productId: createdProducts[24].id,
+      url: "https://images.unsplash.com/photo-1491720731493-223f97d92c21?w=400&h=400&fit=crop",
+      altText: "Earl Grey tea leaves and cup",
+    },
+
+    // Smoked Mackerel (product index 25)
+    {
+      productId: createdProducts[25].id,
+      url: "https://images.unsplash.com/photo-1535424921017-85119f91e5a1?w=400&h=400&fit=crop",
+      altText: "Smoked mackerel fish",
+    },
+
+    // Cinnamon Raisin Bagels (product index 26)
+    {
+      productId: createdProducts[26].id,
+      url: "https://images.unsplash.com/photo-1572279990716-4f8343703ed6?w=400&h=400&fit=crop",
+      altText: "Cinnamon raisin bagels",
+    },
   ];
 
   for (const image of productImages) {
@@ -538,6 +768,34 @@ async function main() {
     { productId: createdProducts[4].id, categoryId: createdCategories[6].id }, // Wooden Bowl -> Handcrafted/Home Decor
     { productId: createdProducts[5].id, categoryId: createdCategories[6].id }, // Ceramic Mug -> Handcrafted/Home Decor
     { productId: createdProducts[6].id, categoryId: createdCategories[6].id }, // Wool Scarf -> Handcrafted/Home Decor
+
+    // New product-category mappings for the 15 additional products
+    // Fresh Produce
+    { productId: createdProducts[12].id, categoryId: createdCategories[0].id }, // Spinach -> Fresh Organic Produce
+    { productId: createdProducts[13].id, categoryId: createdCategories[0].id }, // Carrots -> Fresh Organic Produce
+    { productId: createdProducts[16].id, categoryId: createdCategories[1].id }, // Apples -> Fresh Local Produce
+
+    // Dairy & Eggs
+    { productId: createdProducts[14].id, categoryId: createdCategories[2].id }, // Milk -> Dairy & Eggs/Organic
+    { productId: createdProducts[15].id, categoryId: createdCategories[2].id }, // Goat Cheese -> Dairy & Eggs/Organic
+
+    // Baked Goods
+    { productId: createdProducts[23].id, categoryId: createdCategories[3].id }, // Maple Walnut Bread -> Baked Goods/Artisan
+    { productId: createdProducts[26].id, categoryId: createdCategories[3].id }, // Cinnamon Raisin Bagels -> Baked Goods/Artisan
+
+    // Beverages
+    { productId: createdProducts[24].id, categoryId: createdCategories[4].id }, // Earl Grey Tea -> Beverages/Coffee
+
+    // Seafood
+    { productId: createdProducts[22].id, categoryId: createdCategories[5].id }, // Haddock -> Seafood/Fresh Fish
+    { productId: createdProducts[25].id, categoryId: createdCategories[5].id }, // Smoked Mackerel -> Seafood/Fresh Fish
+
+    // Handcrafted Items
+    { productId: createdProducts[17].id, categoryId: createdCategories[6].id }, // Handwoven Basket -> Handcrafted/Home Decor
+    { productId: createdProducts[18].id, categoryId: createdCategories[6].id }, // Sea Glass Jewelry -> Handcrafted/Home Decor
+    { productId: createdProducts[19].id, categoryId: createdCategories[6].id }, // Driftwood Wall Art -> Handcrafted/Home Decor
+    { productId: createdProducts[20].id, categoryId: createdCategories[6].id }, // Hand-knitted Mittens -> Handcrafted/Home Decor
+    { productId: createdProducts[21].id, categoryId: createdCategories[6].id }, // Pottery Dinner Set -> Handcrafted/Home Decor
   ];
 
   for (const mapping of productCategoryMappings) {

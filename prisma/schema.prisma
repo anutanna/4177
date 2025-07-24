@@ -102,6 +102,7 @@ model Product {
   updatedAt DateTime @updatedAt
 
   @@index([businessId])
+  @@index([createdAt])
   @@map("products")
 }
 

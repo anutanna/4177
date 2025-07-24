@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { FaShoppingCart, FaTrash, FaCreditCard } from 'react-icons/fa';
-import MiniHero from '@/lib/ui/dashboard/MiniHero';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FaShoppingCart, FaTrash, FaCreditCard } from "react-icons/fa";
+import MiniHero from "@/lib/ui/dashboard/MiniHero";
+import Link from "next/link";
 
 interface CartItem {
   id: string;
@@ -18,25 +19,26 @@ interface CartItem {
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCart = async () => {
-      const token = localStorage.getItem('token');
-      console.log('Token in localStorage:', token);
+      const token = localStorage.getItem("token");
+      console.log("Token in localStorage:", token);
 
       if (!token) {
-        console.warn('No token found. User may not be logged in.');
+        console.warn("No token found. User may not be logged in.");
         return;
       }
 
-      const res = await fetch('/api/cart', {
+      const res = await fetch("/api/cart", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       const data = await res.json();
-      console.log('Cart API response:', data);
+      console.log("Cart API response:", data);
 
       if (res.ok) {
         setCartItems(data);
@@ -50,23 +52,25 @@ export default function CartPage() {
     fetchCart();
   }, []);
 
-
   const handleQuantityChange = async (id: string, delta: number) => {
-    const newQuantity = Math.max(1, cartItems.find(item => item.id === id)?.quantity! + delta);
+    const currentItem = cartItems.find((item) => item.id === id);
+    if (!currentItem) return;
 
-    setCartItems(prev =>
-      prev.map(item =>
+    const newQuantity = Math.max(1, currentItem.quantity + delta);
+
+    setCartItems((prev) =>
+      prev.map((item) =>
         item.id === id ? { ...item, quantity: newQuantity } : item
       )
     );
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     await fetch(`/api/cart/${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ quantity: newQuantity }),
@@ -74,19 +78,18 @@ export default function CartPage() {
   };
 
   const handleRemoveItem = async (id: string) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+    setCartItems((prev) => prev.filter((item) => item.id !== id));
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     await fetch(`/api/cart/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
   };
-
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -97,15 +100,15 @@ export default function CartPage() {
   const total = subtotal + shipping + tax;
 
   const handleCheckout = () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      alert('Please log in to proceed to checkout.');
-      router.push('/login');
+      alert("Please log in to proceed to checkout.");
+      router.push("/login");
       return;
     }
 
     // User is logged in — continue to checkout page
-    router.push('/checkout');
+    router.push("/checkout");
   };
 
   return (
@@ -131,25 +134,30 @@ export default function CartPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {cartItems.map(item => (
+                {cartItems.map((item) => (
                   <div
                     key={item.id}
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white rounded-lg shadow-sm p-4 border"
                   >
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{item.product.name}</h3>
+                      <h3 className="font-semibold text-lg">
+                        {item.product.name}
+                      </h3>
                       {item.product.inStock === false && (
-                        <span className="badge badge-warning mt-1">Out of Stock</span>
+                        <span className="badge badge-warning mt-1">
+                          Out of Stock
+                        </span>
                       )}
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-4 sm:mt-0">
                       <div className="text-sm text-gray-600">
                         <div>
-                          Price: <strong>${item.product.price.toFixed(2)}</strong>
+                          Price:{" "}
+                          <strong>${item.product.price.toFixed(2)}</strong>
                         </div>
                         <div>
-                          Total:{' '}
+                          Total:{" "}
                           <strong>
                             ${(item.product.price * item.quantity).toFixed(2)}
                           </strong>
@@ -212,10 +220,13 @@ export default function CartPage() {
                 </div>
 
                 <div className="mt-6 space-y-4">
-                <button onClick={handleCheckout} className="btn btn-primary w-full">
-  <FaCreditCard className="mr-2" />
-  Proceed to Checkout
-</button>
+                  <button
+                    onClick={handleCheckout}
+                    className="btn btn-primary w-full"
+                  >
+                    <FaCreditCard className="mr-2" />
+                    Proceed to Checkout
+                  </button>
 
                   <div className="flex justify-center">
                     <Link href="/" className="btn btn-outline">

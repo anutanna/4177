@@ -1,33 +1,12 @@
-import { MdFiberNew } from "react-icons/md";
-import ProductCarousel from "@/lib/ui/components/ProductCarousel";
-import { getLatestProducts } from "@/lib/actions/db_product_actions";
+import { Suspense } from "react";
+import LatestProductsSkeleton from "@/lib/ui/pages/home/LatestProductsSkeleton";
+import LatestProductsContent from "@/lib/ui/pages/home/LatestProductsContent";
 
-export default async function LatestProductsSection() {
-  // Fetch products on the server
-  const products = await getLatestProducts(10);
-
-  if (products.length === 0) {
-    return (
-      <section className="py-12 px-4 sm:px-6">
-        <div className="flex items-center gap-3 mb-8">
-          <MdFiberNew className="text-green-600 text-xl" />
-          <h3 className="text-2xl font-bold">Latest Products</h3>
-        </div>
-        <div className="text-center text-gray-500">No products available</div>
-      </section>
-    );
-  }
-
+// Main component with Suspense
+export default function LatestProductsSection() {
   return (
-    <section className="py-12 px-4 sm:px-6">
-      {/* Section Title with Icon - Left Aligned */}
-      <div className="flex items-center gap-3 mb-8">
-        <MdFiberNew className="text-green-600 text-2xl" />
-        <h3 className="text-2xl font-bold">Latest Products</h3>
-      </div>
-
-      {/* Product Carousel - Client Component */}
-      <ProductCarousel products={products} />
-    </section>
+    <Suspense fallback={<LatestProductsSkeleton />}>
+      <LatestProductsContent />
+    </Suspense>
   );
 }

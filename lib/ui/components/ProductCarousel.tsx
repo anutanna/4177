@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import ProductCard from "./productCard";
-import CarouselNavigation from "./CarouselNavigation";
+import CarouselNavigation from "@/lib/ui/components/CarouselNavigation";
 
 interface Product {
   id: string;

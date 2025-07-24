@@ -48,16 +48,4 @@ export const navItems: NavItem[] = [
     href: "/lists",
     hasDropdown: false,
   },
-  {
-    label: "Regulars",
-    icon: FaUsers,
-    href: "/regulars",
-    hasDropdown: false,
-  },
-  {
-    label: "Recipes",
-    icon: FaUtensils,
-    href: "/recipes",
-    hasDropdown: false,
-  },
 ];

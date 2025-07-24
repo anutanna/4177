@@ -44,12 +44,12 @@ export default function Header() {
     }
 
     try {
-      const res = await fetch(`/api/products`);
-      const data: Product[] = await res.json();
-      const filtered = data.filter((p) =>
-        p.name.toLowerCase().includes(query.toLowerCase())
+      // Import the server action dynamically to use in client component
+      const { searchProducts } = await import(
+        "@/lib/actions/db_product_actions"
       );
-      setResults(filtered);
+      const data = await searchProducts(query);
+      setResults(data);
     } catch (err) {
       console.error("Search failed:", err);
       setResults([]);
@@ -124,7 +124,7 @@ export default function Header() {
               onFocus={() => search && setShowDropdown(true)}
             />
             {showDropdown && (
-              <div className="absolute top-full left-0 w-full max-h-72 overflow-y-auto bg-white border border-gray-300 border-t-0 shadow-lg z-10">
+              <div className="absolute top-full left-0 w-full max-h-72 overflow-y-auto bg-white border border-gray-300 border-t-0 shadow-lg z-20">
                 {results.length === 0 ? (
                   <div className="px-4 py-3 cursor-pointer border-b border-gray-100 text-sm text-gray-600 transition-colors hover:bg-gray-50">
                     No results found
@@ -192,7 +192,7 @@ export default function Header() {
             {!session?.user && (
               <button
                 type="button"
-                className="hidden md:flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                className="hidden md:flex items-center gap-2 px-3 py-2 border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                 onClick={handleAccountClick}
               >
                 <FaUser className="text-lg" />

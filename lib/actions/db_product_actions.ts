@@ -20,7 +20,49 @@ export async function getProducts() {
   }
 }
 
+export async function getProductsPaginated(
+  page: number = 1,
+  limit: number = 15
+) {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  try {
+    const skip = (page - 1) * limit; // zero-based index for pagination
+
+    const [products, totalCount] = await Promise.all([
+      db.product.findMany({
+        include: {
+          business: true,
+          brand: true,
+          images: true,
+        },
+        orderBy: { createdAt: "asc" },
+        skip,
+        take: limit,
+      }),
+      db.product.count(),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+
+    return {
+      data: products,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        hasNextPage,
+        limit,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching paginated products:", error);
+    throw new Error("Failed to fetch paginated products");
+  }
+}
+
 export async function getLatestProducts(limit: number = 10) {
+  await new Promise(resolve => setTimeout(resolve, 3000));
   try {
     const products = await db.product.findMany({
       include: {
@@ -165,6 +207,33 @@ export async function getProductsByName(name: string) {
   } catch (error) {
     console.error("Error fetching products by name:", error);
     throw new Error("Failed to fetch products by name");
+  }
+}
+
+export async function searchProducts(query: string) {
+  try {
+    if (!query) {
+      return [];
+    }
+
+    const results = await db.product.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: "insensitive",
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+      take: 10,
+    });
+
+    return results;
+  } catch (error) {
+    console.error("Error searching products:", error);
+    throw new Error("Failed to search products");
   }
 }
 

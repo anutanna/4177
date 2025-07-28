@@ -1,8 +1,25 @@
 "use server";
 
 import { prisma as db } from "@/lib/db/prisma";
+import { cache, Cache } from "@/lib/cache";
+
+// Cache TTL constants
+const CACHE_TTL = {
+  BRANDS: 600000, // 10 minutes
+  RANDOM_BRANDS: 300000, // 5 minutes
+};
 
 export async function getBrands() {
+  const cacheKey = Cache.generateKey('getBrands');
+  
+  // Try cache first
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log('Cache HIT: getBrands');
+    return cached;
+  }
+
+  console.log('Cache MISS: getBrands');
   try {
     const brands = await db.brand.findMany({
       include: {
@@ -13,6 +30,9 @@ export async function getBrands() {
         },
       },
     });
+    
+    // Cache the result
+    cache.set(cacheKey, brands, CACHE_TTL.BRANDS);
     return brands;
   } catch (error) {
     console.error("Error fetching brands:", error);
@@ -20,25 +40,35 @@ export async function getBrands() {
   }
 }
 
-export async function getRandomBrands(limit: number = 5) {
-  await new Promise(resolve => setTimeout(resolve, 3000));
-  try {
-    const totalBrands = await db.brand.count();
-    const skip = Math.max(0, Math.floor(Math.random() * (totalBrands - limit)));
+export async function getRandomBrands(count: number = 5) {
+  const cacheKey = Cache.generateKey('getRandomBrands', { count });
+  
+  // Try cache first
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log('Cache HIT: getRandomBrands');
+    return cached;
+  }
 
+  console.log('Cache MISS: getRandomBrands');
+  try {
     const brands = await db.brand.findMany({
-      skip,
-      take: limit,
-      select: {
-        id: true,
-        name: true,
-        logo: true,
-        website: true,
+      include: {
+        products: {
+          include: {
+            business: true,
+          },
+        },
       },
     });
 
-    // Shuffle the results to make them more random
-    return brands.sort(() => Math.random() - 0.5);
+    // Shuffle and take random brands
+    const shuffled = brands.sort(() => 0.5 - Math.random());
+    const randomBrands = shuffled.slice(0, count);
+    
+    // Cache the result
+    cache.set(cacheKey, randomBrands, CACHE_TTL.RANDOM_BRANDS);
+    return randomBrands;
   } catch (error) {
     console.error("Error fetching random brands:", error);
     throw new Error("Failed to fetch random brands");

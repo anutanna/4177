@@ -49,9 +49,10 @@ export default function ProductCard({ name, price, image, id }: ProductProps) {
           <Image
             src={image}
             alt={name}
-            className="rounded-xl h-40 object-cover w-full"
-            width={400}
-            height={400}
+            className="rounded-xl h-32 object-cover w-full"
+            width={300}
+            height={300}
+            loading="lazy"
           />
         </figure>
       </Link>

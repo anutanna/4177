@@ -28,6 +28,7 @@ export default async function ProductPage({ params }: Props) {
             width={500}
             height={500}
             className="rounded-lg object-cover w-full max-h-[500px]"
+            loading="lazy"
           />
         </div>
 

@@ -1,8 +1,26 @@
 "use server";
 
 import { prisma as db } from "@/lib/db/prisma";
+import { cache, Cache } from "@/lib/cache";
+
+// Cache TTL constants
+const CACHE_TTL = {
+  PRODUCTS: 300000, // 5 minutes
+  PRODUCT_DETAIL: 600000, // 10 minutes
+  SEARCH: 180000, // 3 minutes
+};
 
 export async function getProducts() {
+  const cacheKey = Cache.generateKey('getProducts');
+  
+  // Try cache first
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log('Cache HIT: getProducts');
+    return cached;
+  }
+
+  console.log('Cache MISS: getProducts');
   try {
     const products = await db.product.findMany({
       include: {
@@ -13,6 +31,9 @@ export async function getProducts() {
       orderBy: { createdAt: "desc" },
       take: 15, // Limit to 15 latest products for the "Latest Products" section
     });
+    
+    // Cache the result
+    cache.set(cacheKey, products, CACHE_TTL.PRODUCTS);
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -24,6 +45,16 @@ export async function getProductsPaginated(
   page: number = 1,
   limit: number = 15
 ) {
+  const cacheKey = Cache.generateKey('getProductsPaginated', { page, limit });
+  
+  // Try cache first
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log('Cache HIT: getProductsPaginated');
+    return cached;
+  }
+
+  console.log('Cache MISS: getProductsPaginated');
   await new Promise((resolve) => setTimeout(resolve, 3000));
   try {
     const skip = (page - 1) * limit; // zero-based index for pagination
@@ -45,7 +76,7 @@ export async function getProductsPaginated(
     const totalPages = Math.ceil(totalCount / limit);
     const hasNextPage = page < totalPages;
 
-    return {
+    const result = {
       data: products,
       pagination: {
         currentPage: page,
@@ -55,6 +86,10 @@ export async function getProductsPaginated(
         limit,
       },
     };
+
+    // Cache the result
+    cache.set(cacheKey, result, CACHE_TTL.PRODUCTS);
+    return result;
   } catch (error) {
     console.error("Error fetching paginated products:", error);
     throw new Error("Failed to fetch paginated products");
@@ -164,6 +199,16 @@ export async function deleteProduct(id: string) {
 }
 
 export async function getProductById(id: string) {
+  const cacheKey = Cache.generateKey('getProductById', { id });
+  
+  // Try cache first
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log('Cache HIT: getProductById');
+    return cached;
+  }
+
+  console.log('Cache MISS: getProductById');
   try {
     const product = await db.product.findUnique({
       where: { id },
@@ -182,6 +227,9 @@ export async function getProductById(id: string) {
     if (!product) {
       throw new Error("Product not found");
     }
+    
+    // Cache the result
+    cache.set(cacheKey, product, CACHE_TTL.PRODUCT_DETAIL);
     return product;
   } catch (error) {
     console.error("Error fetching product by ID:", error);
@@ -190,6 +238,16 @@ export async function getProductById(id: string) {
 }
 
 export async function getProductsByName(name: string) {
+  const cacheKey = Cache.generateKey('getProductsByName', { name });
+  
+  // Try cache first
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log('Cache HIT: getProductsByName');
+    return cached;
+  }
+
+  console.log('Cache MISS: getProductsByName');
   try {
     const products = await db.product.findMany({
       where: {
@@ -203,6 +261,9 @@ export async function getProductsByName(name: string) {
         brand: true,
       },
     });
+    
+    // Cache the result
+    cache.set(cacheKey, products, CACHE_TTL.SEARCH);
     return products;
   } catch (error) {
     console.error("Error fetching products by name:", error);
@@ -211,6 +272,16 @@ export async function getProductsByName(name: string) {
 }
 
 export async function searchProducts(query: string) {
+  const cacheKey = Cache.generateKey('searchProducts', { query });
+  
+  // Try cache first
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log('Cache HIT: searchProducts');
+    return cached;
+  }
+
+  console.log('Cache MISS: searchProducts');
   try {
     if (!query) {
       return [];
@@ -230,6 +301,8 @@ export async function searchProducts(query: string) {
       take: 10,
     });
 
+    // Cache the result
+    cache.set(cacheKey, results, CACHE_TTL.SEARCH);
     return results;
   } catch (error) {
     console.error("Error searching products:", error);

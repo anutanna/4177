@@ -18,7 +18,7 @@ function BrandsSkeleton() {
               key={index}
               className="flex flex-col items-center gap-2 transition-transform hover:-translate-y-1"
             >
-              <div className="w-28 h-28 rounded-full border border-gray-300 shadow-sm overflow-hidden flex items-center justify-center  skeleton"></div>
+              <div className="w-20 h-20 rounded-full border border-gray-300 shadow-sm overflow-hidden flex items-center justify-center skeleton"></div>
               <div className="w-16 h-4 rounded skeleton"></div>
             </div>
           ))}
@@ -45,13 +45,14 @@ async function BrandsContent() {
               key={brand.id}
               className="flex flex-col items-center gap-2 transition-transform hover:-translate-y-1"
             >
-              <div className="w-28 h-28 rounded-full border border-gray-300 shadow-sm hover:shadow-md overflow-hidden flex items-center justify-center bg-white hover:bg-gradient-to-r from-[#21C1B9] to-[#1A71D5] transition-all duration-500">
+              <div className="w-20 h-20 rounded-full border border-gray-300 shadow-sm hover:shadow-md overflow-hidden flex items-center justify-center bg-white hover:bg-gradient-to-r from-[#21C1B9] to-[#1A71D5] transition-all duration-500">
                 <Image
                   src={brand.logo || "/placeholder-logo.svg"}
                   alt={`${brand.name} logo`}
-                  width={102}
-                  height={102}
+                  width={80}
+                  height={80}
                   className="object-contain rounded-full cursor-pointer"
+                  loading="lazy"
                 />
               </div>
               <h3 className="text-sm font-medium text-gray-600 m-0">

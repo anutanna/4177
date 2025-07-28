@@ -1,11 +1,30 @@
 "use server";
 
 import { prisma as db } from "@/lib/db/prisma";
+import { cache, Cache } from "@/lib/cache";
 
+// Cache TTL constants
+const CACHE_TTL = {
+  BUSINESSES: 600000, // 10 minutes
+  BUSINESS_DETAIL: 900000, // 15 minutes
+};
 
   export async function getBusinesses() {
+  const cacheKey = Cache.generateKey('getBusinesses');
+  
+  // Try cache first
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    console.log('Cache HIT: getBusinesses');
+    return cached;
+  }
+
+  console.log('Cache MISS: getBusinesses');
     try {
       const vendors = await db.business.findMany();
+    
+    // Cache the result
+    cache.set(cacheKey, vendors, CACHE_TTL.BUSINESSES);
       return vendors;
     } catch (error) {
       console.error("Error fetching vendors:", error);
@@ -103,6 +122,16 @@ import { prisma as db } from "@/lib/db/prisma";
 
 
   export async function getBusinessById(id: string) {
+    const cacheKey = Cache.generateKey('getBusinessById', { id });
+    
+    // Try cache first
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      console.log('Cache HIT: getBusinessById');
+      return cached;
+    }
+
+    console.log('Cache MISS: getBusinessById');
     try {
       const vendor = await db.business.findUnique({
         where: { id },
@@ -115,6 +144,9 @@ import { prisma as db } from "@/lib/db/prisma";
       if (!vendor) {
         throw new Error("Business not found");
       }
+      
+      // Cache the result
+      cache.set(cacheKey, vendor, CACHE_TTL.BUSINESS_DETAIL);
       return vendor;
     } catch (error) {
       console.error("Error fetching vendor by ID:", error);

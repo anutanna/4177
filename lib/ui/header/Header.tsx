@@ -107,6 +107,7 @@ export default function Header() {
               width={100}
               height={32}
               className="h-6 md:h-8"
+              loading="lazy"
             />
           </Link>
 

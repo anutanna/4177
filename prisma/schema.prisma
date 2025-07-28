@@ -23,20 +23,20 @@ enum OrderStatus {
 }
 
 model User {
-  id            String  @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  email         String  @unique
-  emailVerified Boolean
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?  @unique
+  emailVerified Boolean?
   image         String?
   address       String?
   phone         String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
-  role     UserRole   @default(CUSTOMER)
-  orders   Order[]    @relation("OrderUser")
-  business Business[] @relation("BusinessUser")
+  role     UserRole?   @default(CUSTOMER)
+  orders   Order[]     @relation("OrderUser")
+  business Business[]  @relation("BusinessUser")
 
   cartItems CartItem[]
   sessions  Session[]
@@ -46,60 +46,60 @@ model User {
 }
 
 model Business {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  userOwnerId String  @db.ObjectId
-  name        String
-  email       String  @unique
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userOwnerId String?  @db.ObjectId
+  name        String?
+  email       String?  @unique
   phone       String?
   address     String?
   website     String?
   logo        String?
   description String?
-  rating      Float?  @default(0.0)
+  rating      Float?   @default(0.0)
 
-  user     User      @relation(fields: [userOwnerId], references: [id], name: "BusinessUser")
-  products Product[] @relation("ProductBusiness")
-  orders   Order[]   @relation("OrderBusiness")
+  user     User?      @relation(fields: [userOwnerId], references: [id], name: "BusinessUser")
+  products Product[]  @relation("ProductBusiness")
+  orders   Order[]    @relation("OrderBusiness")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@map("businesses")
 }
 
 model Brand {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  name        String    @unique
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  name        String?    @unique
   description String?
   logo        String?
   website     String?
-  products    Product[] @relation("ProductBrand")
+  products    Product[]  @relation("ProductBrand")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@map("brands")
 }
 
 model Product {
   id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
+  name        String?
   description String?
-  price       Float
-  stock       Int
+  price       Float?
+  stock       Int?
   cartItems   CartItem[]
 
-  businessId String   @db.ObjectId
-  business   Business @relation(fields: [businessId], references: [id], name: "ProductBusiness")
-  brandId    String   @db.ObjectId
-  brand      Brand    @relation(fields: [brandId], references: [id], name: "ProductBrand")
+  businessId String?   @db.ObjectId
+  business   Business? @relation(fields: [businessId], references: [id], name: "ProductBusiness")
+  brandId    String?   @db.ObjectId
+  brand      Brand?    @relation(fields: [brandId], references: [id], name: "ProductBrand")
 
   orderItems OrderItem[]         @relation("OrderItemProduct")
   images     ProductImage[]      @relation("ProductImageProduct")
   categories ProductToCategory[] @relation("ProductCategories")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@index([businessId])
   @@index([createdAt])
@@ -109,14 +109,14 @@ model Product {
 model ProductImage {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  productId String  @db.ObjectId
-  product   Product @relation(fields: [productId], references: [id], name: "ProductImageProduct")
+  productId String?   @db.ObjectId
+  product   Product?  @relation(fields: [productId], references: [id], name: "ProductImageProduct")
 
-  url     String
+  url     String?
   altText String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@index([productId])
   @@map("product_images")
@@ -124,25 +124,25 @@ model ProductImage {
 
 model ProductCategory {
   id                     String              @id @default(auto()) @map("_id") @db.ObjectId
-  categoryName           String              @unique
+  categoryName           String?             @unique
   categoryDescription    String?
   subCategoryName        String?
   subCategoryDescription String?
   products               ProductToCategory[] @relation("ProductCategories")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@map("product_categories")
 }
 
 model ProductToCategory {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
-  productId  String @db.ObjectId
-  categoryId String @db.ObjectId
+  productId  String? @db.ObjectId
+  categoryId String? @db.ObjectId
 
-  product  Product         @relation(fields: [productId], references: [id], name: "ProductCategories")
-  category ProductCategory @relation(fields: [categoryId], references: [id], name: "ProductCategories")
+  product  Product?         @relation(fields: [productId], references: [id], name: "ProductCategories")
+  category ProductCategory? @relation(fields: [categoryId], references: [id], name: "ProductCategories")
 
   @@unique([productId, categoryId])
   @@map("product_to_category")
@@ -150,17 +150,17 @@ model ProductToCategory {
 
 model Order {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String      @db.ObjectId
-  user       User        @relation(fields: [userId], references: [id], name: "OrderUser")
-  businessId String      @db.ObjectId
-  business   Business    @relation(fields: [businessId], references: [id], name: "OrderBusiness")
+  userId     String?     @db.ObjectId
+  user       User?       @relation(fields: [userId], references: [id], name: "OrderUser")
+  businessId String?     @db.ObjectId
+  business   Business?   @relation(fields: [businessId], references: [id], name: "OrderBusiness")
   orderItems OrderItem[] @relation("OrderItemOrder")
 
-  total  Float
-  status OrderStatus @default(PENDING)
+  total  Float?
+  status OrderStatus? @default(PENDING)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@index([userId])
   @@index([businessId])
@@ -168,17 +168,17 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  orderId   String  @db.ObjectId
-  order     Order   @relation(fields: [orderId], references: [id], name: "OrderItemOrder")
-  productId String  @db.ObjectId
-  product   Product @relation(fields: [productId], references: [id], name: "OrderItemProduct")
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String?  @db.ObjectId
+  order     Order?   @relation(fields: [orderId], references: [id], name: "OrderItemOrder")
+  productId String?  @db.ObjectId
+  product   Product? @relation(fields: [productId], references: [id], name: "OrderItemProduct")
 
-  quantity Int
-  price    Float
+  quantity Int?
+  price    Float?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@index([orderId])
   @@index([productId])
@@ -186,38 +186,38 @@ model OrderItem {
 }
 
 model CartItem {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id])
 
-  productId String  @db.ObjectId
-  product   Product @relation(fields: [productId], references: [id])
+  productId String?  @db.ObjectId
+  product   Product? @relation(fields: [productId], references: [id])
 
-  quantity  Int      @default(1)
-  createdAt DateTime @default(now())
+  quantity  Int?     @default(1)
+  createdAt DateTime? @default(now())
 }
 
 model Session {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  expiresAt DateTime
-  token     String
-  createdAt DateTime
-  updatedAt DateTime
+  expiresAt DateTime?
+  token     String?
+  createdAt DateTime?
+  updatedAt DateTime?
   ipAddress String?
   userAgent String?
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
   @@map("session")
 }
 
 model Account {
-  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
-  accountId             String
-  providerId            String
-  userId                String    @db.ObjectId
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                    String     @id @default(auto()) @map("_id") @db.ObjectId
+  accountId             String?
+  providerId            String?
+  userId                String?    @db.ObjectId
+  user                  User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -225,17 +225,17 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-  createdAt             DateTime
-  updatedAt             DateTime
+  createdAt             DateTime?
+  updatedAt             DateTime?
 
   @@map("account")
 }
 
 model Verification {
   id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  identifier String
-  value      String
-  expiresAt  DateTime
+  identifier String?
+  value      String?
+  expiresAt  DateTime?
   createdAt  DateTime?
   updatedAt  DateTime?
 

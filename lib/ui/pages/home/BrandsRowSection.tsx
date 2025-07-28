@@ -10,9 +10,10 @@ export default function BrandsRowSection() {
           key={index}
           src={`/brands/${brand}.png`}
           alt={brand}
-          width={48}
-          height={48}
+          width={32}
+          height={32}
           className="object-contain"
+          loading="lazy"
         />
       ))}
     </section>

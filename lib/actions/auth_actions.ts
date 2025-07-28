@@ -13,7 +13,6 @@ export async function registerUser(
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
-  const role = formData.get("role") as UserRole;
 
   // Validate passwords match
   if (password !== confirmPassword) {
@@ -21,7 +20,16 @@ export async function registerUser(
   }
 
   try {
-    // Create user with Better Auth
+    // Check if user already exists
+    const existingUser = await db.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return { error: "An account with this email already exists" };
+    }
+
+    // Create new user with Better Auth
     const signUpResult = await auth.api.signUpEmail({
       body: {
         email,
@@ -34,38 +42,10 @@ export async function registerUser(
       return { error: "Failed to create user" };
     }
 
-    const userId = signUpResult.user.id;
+    // Note: All new users are registered as CUSTOMER by default
+    // They can upgrade to VENDOR later through the business registration flow
 
-    // Update user role if it's VENDOR (default is CUSTOMER)
-    if (role === UserRole.VENDOR) {
-      await db.user.update({
-        where: { id: userId },
-        data: { role: UserRole.VENDOR },
-      });
-
-      // Get business data from form
-      const businessName = formData.get("businessName") as string;
-      const businessEmail = formData.get("businessEmail") as string;
-      const businessPhone = formData.get("businessPhone") as string;
-      const businessAddress = formData.get("businessAddress") as string;
-      const businessWebsite = formData.get("businessWebsite") as string;
-      const businessDescription = formData.get("businessDescription") as string;
-
-      // Create business record for vendor
-      if (businessName && businessEmail) {
-        await db.business.create({
-          data: {
-            name: businessName,
-            email: businessEmail,
-            phone: businessPhone || null,
-            address: businessAddress || null,
-            website: businessWebsite || null,
-            description: businessDescription || null,
-            userOwnerId: userId,
-          },
-        });
-      }
-    }
+    // Note: Session refresh is handled client-side after successful registration
   } catch (error) {
     console.error("Registration error:", error);
     return { error: "Registration failed. Please try again." };
@@ -129,5 +109,53 @@ export async function getUserWithSession(userId: string) {
   } catch (error) {
     console.error("Error fetching user:", error);
     return null;
+  }
+}
+
+export async function upgradeToVendor(
+  prevState: { success?: boolean; error?: string } | null,
+  formData: FormData
+) {
+  try {
+    // Get user ID from the form data (we'll add it from the client)
+    const userId = formData.get("userId") as string;
+
+    if (!userId) {
+      return { error: "User not authenticated" };
+    }
+
+    const businessName = formData.get("businessName") as string;
+    const businessEmail = formData.get("businessEmail") as string;
+    const businessPhone = formData.get("businessPhone") as string;
+    const businessAddress = formData.get("businessAddress") as string;
+    const businessWebsite = formData.get("businessWebsite") as string;
+    const businessDescription = formData.get("businessDescription") as string;
+
+    // Update user role to vendor
+    await db.user.update({
+      where: { id: userId },
+      data: { role: UserRole.VENDOR },
+    });
+
+    // Create business record for vendor
+    if (businessName && businessEmail) {
+      await db.business.create({
+        data: {
+          name: businessName,
+          email: businessEmail,
+          phone: businessPhone || null,
+          address: businessAddress || null,
+          website: businessWebsite || null,
+          description: businessDescription || null,
+          userOwnerId: userId,
+        },
+      });
+    }
+
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error) {
+    console.error("Vendor upgrade error:", error);
+    return { error: "Failed to upgrade to vendor. Please try again." };
   }
 }

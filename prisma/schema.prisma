@@ -22,6 +22,22 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum RefundStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROCESSED
+}
+
+enum RefundReason {
+  DAMAGED
+  COURTESY
+  WRONG_CHARGE
+  CUSTOMER_REQUEST
+  QUALITY_ISSUE
+  OTHER
+}
+
 model User {
   id            String  @id @default(auto()) @map("_id") @db.ObjectId
   name          String
@@ -37,6 +53,7 @@ model User {
   role     UserRole   @default(CUSTOMER)
   orders   Order[]    @relation("OrderUser")
   business Business[] @relation("BusinessUser")
+  refunds  Refund[]
 
   cartItems CartItem[]
   sessions  Session[]
@@ -60,6 +77,7 @@ model Business {
   user     User      @relation(fields: [userOwnerId], references: [id], name: "BusinessUser")
   products Product[] @relation("ProductBusiness")
   orders   Order[]   @relation("OrderBusiness")
+  refunds  Refund[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -94,9 +112,10 @@ model Product {
   brandId    String   @db.ObjectId
   brand      Brand    @relation(fields: [brandId], references: [id], name: "ProductBrand")
 
-  orderItems OrderItem[]         @relation("OrderItemProduct")
-  images     ProductImage[]      @relation("ProductImageProduct")
-  categories ProductToCategory[] @relation("ProductCategories")
+  orderItems    OrderItem[]            @relation("OrderItemProduct")
+  images        ProductImage[]         @relation("ProductImageProduct")
+  categories    ProductToCategory[]    @relation("ProductCategories")
+  subCategories ProductToSubCategory[] @relation("ProductSubCategories")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -123,17 +142,31 @@ model ProductImage {
 }
 
 model ProductCategory {
-  id                     String              @id @default(auto()) @map("_id") @db.ObjectId
-  categoryName           String              @unique
-  categoryDescription    String?
-  subCategoryName        String?
-  subCategoryDescription String?
-  products               ProductToCategory[] @relation("ProductCategories")
+  id            String               @id @default(auto()) @map("_id") @db.ObjectId
+  name          String               @unique
+  description   String?
+  subCategories ProductSubCategory[] @relation("CategorySubCategories")
+  products      ProductToCategory[]  @relation("ProductCategories")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("product_categories")
+}
+
+model ProductSubCategory {
+  id          String                 @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  categoryId  String                 @db.ObjectId
+  category    ProductCategory        @relation(fields: [categoryId], references: [id], name: "CategorySubCategories")
+  products    ProductToSubCategory[] @relation("ProductSubCategories")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([categoryId, name])
+  @@map("product_sub_categories")
 }
 
 model ProductToCategory {
@@ -148,6 +181,18 @@ model ProductToCategory {
   @@map("product_to_category")
 }
 
+model ProductToSubCategory {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  productId     String @db.ObjectId
+  subCategoryId String @db.ObjectId
+
+  product     Product            @relation(fields: [productId], references: [id], name: "ProductSubCategories")
+  subCategory ProductSubCategory @relation(fields: [subCategoryId], references: [id], name: "ProductSubCategories")
+
+  @@unique([productId, subCategoryId])
+  @@map("product_to_sub_category")
+}
+
 model Order {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
   userId     String      @db.ObjectId
@@ -155,6 +200,7 @@ model Order {
   businessId String      @db.ObjectId
   business   Business    @relation(fields: [businessId], references: [id], name: "OrderBusiness")
   orderItems OrderItem[] @relation("OrderItemOrder")
+  refunds    Refund[]
 
   total  Float
   status OrderStatus @default(PENDING)
@@ -195,6 +241,32 @@ model CartItem {
 
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
+}
+
+model Refund {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId String @db.ObjectId
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  businessId String   @db.ObjectId
+  business   Business @relation(fields: [businessId], references: [id])
+
+  amount      Float
+  reason      RefundReason
+  status      RefundStatus @default(PENDING)
+  notes       String?
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([businessId])
+  @@map("refunds")
 }
 
 model Session {

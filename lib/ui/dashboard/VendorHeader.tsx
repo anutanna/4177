@@ -1,4 +1,5 @@
-import Image from 'next/image';
+import Image from "next/image";
+import Link from "next/link";
 
 interface VendorHeaderProps {
   vendorName: string;
@@ -6,8 +7,16 @@ interface VendorHeaderProps {
   activeTab: string;
 }
 
-export default function VendorHeader({ vendorName, vendorLogo, activeTab }: VendorHeaderProps) {
-  const tabs = ['Dashboard', 'Inventory', 'Settings'];
+export default function VendorHeader({
+  vendorName,
+  vendorLogo,
+  activeTab,
+}: VendorHeaderProps) {
+  const tabs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Inventory", href: "/inventory" },
+    { label: "Settings", href: "/settings" },
+  ];
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -27,7 +36,9 @@ export default function VendorHeader({ vendorName, vendorLogo, activeTab }: Vend
             </div>
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-base-content">{vendorName}</h2>
+            <h2 className="text-2xl font-bold text-base-content">
+              {vendorName}
+            </h2>
           </div>
         </div>
 
@@ -35,16 +46,15 @@ export default function VendorHeader({ vendorName, vendorLogo, activeTab }: Vend
         <div className="flex gap-2">
           {/* DaisyUI: tabs component styled as buttons */}
           {tabs.map((tab) => (
-            <button
-              key={tab}
+            <Link
+              key={tab.label}
+              href={tab.href}
               className={`btn ${
-                activeTab === tab
-                  ? 'btn-primary'
-                  : 'btn-ghost'
+                activeTab === tab.label ? "btn-primary" : "btn-ghost"
               }`}
             >
-              {tab}
-            </button>
+              {tab.label}
+            </Link>
           ))}
         </div>
       </div>

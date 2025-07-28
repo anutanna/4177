@@ -16,7 +16,7 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) return notFound();
 
-  const imageUrl = product.images[0]?.url || "/placeholder.png";
+  const imageUrl = product.images[0]?.url || "/no-image.svg";
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-screen-lg">

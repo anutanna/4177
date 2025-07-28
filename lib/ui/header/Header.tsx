@@ -4,7 +4,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FaUser, FaShoppingCart, FaSearch } from "react-icons/fa";
+import {
+  FaUser,
+  FaShoppingCart,
+  FaSearch,
+  FaStore,
+  FaChartLine,
+  FaHome,
+} from "react-icons/fa";
 import { HiMenu } from "react-icons/hi";
 import { MdExitToApp } from "react-icons/md";
 import { Input } from "@/lib/ui/components/input";
@@ -164,6 +171,32 @@ export default function Header() {
                     tabIndex={0}
                     className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
                   >
+                    {session.user &&
+                      "role" in session.user &&
+                      session.user.role === UserRole.CUSTOMER && (
+                        <li>
+                          <Link
+                            href="/business-registration"
+                            className="flex items-center gap-2 text-blue-600 hover:bg-blue-50"
+                          >
+                            <FaStore className="text-lg" />
+                            Become a Vendor
+                          </Link>
+                        </li>
+                      )}
+                    {session.user &&
+                      "role" in session.user &&
+                      session.user.role === UserRole.VENDOR && (
+                        <li>
+                          <Link
+                            href="/dashboard"
+                            className="flex items-center gap-2 text-blue-600 hover:bg-blue-50"
+                          >
+                            <FaChartLine className="text-lg" />
+                            Vendor Dashboard
+                          </Link>
+                        </li>
+                      )}
                     <li>
                       <button
                         type="button"
@@ -284,6 +317,55 @@ export default function Header() {
 
           {/* Navigation Links */}
           <nav className="space-y-2">
+            {/* Primary links */}
+            <Link
+              href="/"
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <FaHome className="text-lg" />
+              Home
+            </Link>
+            <Link
+              href="/cart"
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <FaShoppingCart className="text-lg" />
+              Cart
+            </Link>
+
+            {/* Vendor Dashboard - Only show for vendors */}
+            {session?.user &&
+              "role" in session.user &&
+              session.user.role === UserRole.VENDOR && (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setIsDrawerOpen(false)}
+                >
+                  <FaChartLine className="text-lg" />
+                  Vendor Dashboard
+                </Link>
+              )}
+
+            {/* Become a Vendor - Only show for customers */}
+            {session?.user &&
+              "role" in session.user &&
+              session.user.role === UserRole.CUSTOMER && (
+                <Link
+                  href="/business-registration"
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setIsDrawerOpen(false)}
+                >
+                  <FaStore className="text-lg" />
+                  Become a Vendor
+                </Link>
+              )}
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-4"></div>
+
             {/* Main navigation items */}
             {navItems.map((item, index) => {
               const IconComponent = item.icon;
@@ -299,38 +381,6 @@ export default function Header() {
                 </Link>
               );
             })}
-
-            {/* Divider */}
-            <div className="border-t border-gray-200 my-4"></div>
-
-            {/* Additional links */}
-            <Link
-              href="/"
-              className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
-              onClick={() => setIsDrawerOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              href="/cart"
-              className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
-              onClick={() => setIsDrawerOpen(false)}
-            >
-              Cart
-            </Link>
-
-            {/* Vendor Dashboard - Only show for vendors */}
-            {session?.user &&
-              "role" in session.user &&
-              session.user.role === UserRole.VENDOR && (
-                <Link
-                  href="/dashboard"
-                  className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                  onClick={() => setIsDrawerOpen(false)}
-                >
-                  📦 Vendor Dashboard
-                </Link>
-              )}
 
             {/* Login/Register - Only show when not logged in */}
             {!session?.user && (

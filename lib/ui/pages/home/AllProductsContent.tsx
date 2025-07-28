@@ -77,7 +77,7 @@ export default function AllProductsContent({
           <ProductCard
             key={product.id}
             name={product.name}
-            image={product.images[0]?.url || "/placeholder.jpg"}
+            image={product.images[0]?.url || "/no-image.svg"}
             price={product.price.toString()}
             id={product.id}
           />

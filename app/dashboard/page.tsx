@@ -1,174 +1,210 @@
-
-
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/auth";
+import { UserRole, OrderStatus } from "@prisma/client";
 import {
   FaDollarSign,
   FaUndo,
   FaShoppingCart,
-  FaShoppingBasket
-} from 'react-icons/fa';
-import MiniHero from '@/lib/ui/dashboard/MiniHero';
-import VendorHeader from '@/lib/ui/dashboard/VendorHeader';
-import PerformanceCard from '@/lib/ui/dashboard/PerformanceCard';
-import OrdersTable from '@/lib/ui/dashboard/OrdersTable';
+  FaShoppingBasket,
+} from "react-icons/fa";
+import VendorPageLayout from "@/lib/ui/dashboard/VendorPageLayout";
+import PerformanceCard from "@/lib/ui/dashboard/PerformanceCard";
+import OrdersTable from "@/lib/ui/dashboard/OrdersTable";
+import {
+  getBusinessByUserId,
+  getOrdersByBusiness,
+  getBusinessPerformanceData,
+} from "@/lib/actions/db_order_actions";
 
-export default function Dashboard() {
-  // Mock data for demonstration
-  const performanceData = [
-    {
-      title: 'Revenue',
-      value: '$12,426',
-      change: 3.5,
-      icon: <FaDollarSign size={20} />
-    },
-    {
-      title: 'Refunds',
-      value: '$892',
-      change: -1.2,
-      icon: <FaUndo size={20} />,
-      inverted: true
-    },
-    {
-      title: 'Orders',
-      value: '1,247',
-      change: 8.3,
-      icon: <FaShoppingCart size={20} />
-    },
-    {
-      title: 'Basket Size',
-      value: '$53.40',
-      change: 2.1,
-      icon: <FaShoppingBasket size={20} />
-    }
-  ];
+// Types for the dashboard
+interface DashboardOrder {
+  id: string;
+  orderNumber: string;
+  deliveryDate: string;
+  customer: {
+    name: string;
+    avatar: string;
+  };
+  amount: number;
+  status: "Complete" | "Pending" | "In Progress" | "Cancelled";
+}
 
-  const ordersData = [
-    {
-      id: '1',
-      orderNumber: '#12345',
-      deliveryDate: 'Wed 1:00 pm',
-      customer: {
-        name: 'John Doe',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
-      },
-      amount: 53.40,
-      status: 'Complete' as const
-    },
-    {
-      id: '2',
-      orderNumber: '#12346',
-      deliveryDate: 'Thu 3:30 pm',
-      customer: {
-        name: 'Jane Smith',
-        avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face'
-      },
-      amount: 89.99,
-      status: 'Pending' as const
-    },
-    {
-      id: '3',
-      orderNumber: '#12347',
-      deliveryDate: 'Fri 11:15 am',
-      customer: {
-        name: 'Mike Johnson',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
-      },
-      amount: 124.50,
-      status: 'In Progress' as const
-    },
-    {
-      id: '4',
-      orderNumber: '#12348',
-      deliveryDate: 'Sat 9:45 am',
-      customer: {
-        name: 'Sarah Wilson',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
-      },
-      amount: 67.25,
-      status: 'Cancelled' as const
+export default async function Dashboard() {
+  // Authentication is handled by middleware
+  // Here we only check authorization (vendor role)
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  // Check if user has vendor role (user should exist due to middleware auth check)
+  const user = session?.user as {
+    role?: UserRole;
+    id?: string;
+    email?: string;
+  };
+  if (!user?.role || user.role !== UserRole.VENDOR) {
+    redirect("/unauthorized");
+  }
+
+  // If no business exists for the user, use dummy data for mat@dal.ca
+  let business;
+  let orders: DashboardOrder[] = [];
+  let performanceData;
+
+  try {
+    business = await getBusinessByUserId(user.id!);
+
+    if (!business) {
+      redirect("/unauthorized");
     }
-  ];
+
+    // Fetch real data for existing business
+    const [businessOrders, businessPerformance] = await Promise.all([
+      getOrdersByBusiness(business.id),
+      getBusinessPerformanceData(business.id),
+    ]);
+
+    // Map order status from database to component format
+    const mapOrderStatus = (
+      status: OrderStatus
+    ): "Complete" | "Pending" | "In Progress" | "Cancelled" => {
+      switch (status) {
+        case OrderStatus.COMPLETED:
+          return "Complete";
+        case OrderStatus.PENDING:
+          return "Pending";
+        case OrderStatus.IN_PROGRESS:
+          return "In Progress";
+        case OrderStatus.CANCELLED:
+          return "Cancelled";
+        default:
+          return "Pending";
+      }
+    };
+
+    // Transform orders for the component
+    orders = businessOrders.map((order) => ({
+      id: order.id,
+      orderNumber: `#${order.id.slice(-6).toUpperCase()}`,
+      deliveryDate: order.createdAt.toLocaleDateString("en-US", {
+        weekday: "short",
+        hour: "numeric",
+        minute: "2-digit",
+      }),
+      customer: {
+        name: order.user.name,
+        avatar:
+          order.user.image ||
+          `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face`,
+      },
+      amount: order.total,
+      status: mapOrderStatus(order.status),
+    }));
+
+    // Create performance data from real business data
+    performanceData = [
+      {
+        title: "Revenue",
+        value: `$${businessPerformance.revenue.toLocaleString()}`,
+        change: 3.5, // TODO: Calculate real change percentage
+        icon: <FaDollarSign size={20} />,
+      },
+      {
+        title: "Refunds",
+        value: `$${businessPerformance.refunds.toLocaleString()}`,
+        change: -1.2, // TODO: Calculate real change percentage
+        icon: <FaUndo size={20} />,
+        inverted: true,
+      },
+      {
+        title: "Orders",
+        value: businessPerformance.totalOrders.toLocaleString(),
+        change: 8.3, // TODO: Calculate real change percentage
+        icon: <FaShoppingCart size={20} />,
+      },
+      {
+        title: "Basket Size",
+        value: `$${businessPerformance.avgBasketSize.toFixed(2)}`,
+        change: 2.1, // TODO: Calculate real change percentage
+        icon: <FaShoppingBasket size={20} />,
+      },
+    ];
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    redirect("/unauthorized");
+  }
 
   return (
-    <div className="min-h-screen bg-base-100">
-      {/* Mini Hero Section */}
-      <MiniHero
-        title="Vendor Dashboard"
-        backgroundImage="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=400&fit=crop"
-      />
+    <VendorPageLayout
+      pageTitle="Vendor Dashboard"
+      vendorName={business?.name || "Shopizon"}
+      vendorLogo={
+        business?.logo ||
+        "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=150&h=150&fit=crop"
+      }
+      activeTab="Dashboard"
+      sectionTitle="Performance Summary"
+    >
+      {/* Performance Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {performanceData.map((data, index) => (
+          <PerformanceCard
+            key={index}
+            title={data.title}
+            value={data.value}
+            change={data.change}
+            icon={data.icon}
+            inverted={data.inverted}
+          />
+        ))}
+      </div>
 
-      {/* Vendor Header with Logo and Tabs */}
-      <VendorHeader
-        vendorName="Shopizon"
-        vendorLogo="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=150&h=150&fit=crop"
-        activeTab="Dashboard"
-      />
-
-      {/* Main Dashboard Content */}
-      <div className="container mx-auto px-4 pb-8">
-
-        {/* Performance Summary Section */}
-        <div className="mb-8">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-base-content mb-4">Performance Summary</h2>
-            {/* DaisyUI: divider */}
-            <div className="divider"></div>
-          </div>
-
-          {/* Performance Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {performanceData.map((data, index) => (
-              <PerformanceCard
-                key={index}
-                title={data.title}
-                value={data.value}
-                change={data.change}
-                icon={data.icon}
-                inverted={data.inverted}
-              />
-            ))}
-          </div>
+      {/* Orders Section */}
+      <div>
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-base-content mb-4">Orders</h2>
+          {/* DaisyUI: divider */}
+          <div className="divider"></div>
         </div>
 
-        {/* Orders Section */}
-        <div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-base-content mb-4">Orders</h2>
-            {/* DaisyUI: divider */}
-            <div className="divider"></div>
-          </div>
-
-          {/* DaisyUI: card component for orders section */}
-          <div className="card bg-base-100 shadow-sm border border-gray-300">
-            <div className="card-body">
-              {/* Filters Section */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                {/* Search Bar - DaisyUI: input component */}
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    placeholder="Search orders..."
-                    className="input input-bordered w-full"
-                  />
-                </div>
-
-                {/* Status Dropdown - DaisyUI: select component */}
-                <div className="w-full sm:w-auto">
-                  <select className="select select-bordered w-full sm:w-auto">
-                    <option>All Status</option>
-                    <option>Complete</option>
-                    <option>Pending</option>
-                    <option>In Progress</option>
-                    <option>Cancelled</option>
-                  </select>
-                </div>
+        {/* DaisyUI: card component for orders section */}
+        <div className="card bg-base-100 shadow-sm border border-gray-300">
+          <div className="card-body">
+            {/* Filters Section */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              {/* Search Bar - DaisyUI: input component */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-base-content mb-2">
+                  Search Orders
+                </label>
+                <input
+                  type="text"
+                  placeholder="Search orders..."
+                  className="input input-bordered w-full"
+                />
               </div>
 
-              {/* Orders Table */}
-              <OrdersTable orders={ordersData} />
+              {/* Status Dropdown - DaisyUI: select component */}
+              <div className="w-full sm:w-auto sm:min-w-48">
+                <label className="block text-sm font-medium text-base-content mb-2">
+                  Status
+                </label>
+                <select className="select select-bordered w-full">
+                  <option>All Status</option>
+                  <option>Complete</option>
+                  <option>Pending</option>
+                  <option>In Progress</option>
+                  <option>Cancelled</option>
+                </select>
+              </div>
             </div>
+
+            {/* Orders Table */}
+            <OrdersTable orders={orders} />
           </div>
         </div>
       </div>
-    </div>
+    </VendorPageLayout>
   );
 }

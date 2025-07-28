@@ -1,11 +1,4 @@
-import {
-  FaCubes,
-  FaTag,
-  FaHeart,
-  FaList,
-  FaUsers,
-  FaUtensils,
-} from "react-icons/fa";
+import { FaCubes, FaTag, FaHeart, FaList } from "react-icons/fa";
 
 export interface NavItem {
   label: string;

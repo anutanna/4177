@@ -1,4 +1,11 @@
-import { PrismaClient, UserRole, OrderStatus, Prisma } from "@prisma/client";
+import {
+  PrismaClient,
+  UserRole,
+  OrderStatus,
+  RefundStatus,
+  RefundReason,
+  Prisma,
+} from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -8,11 +15,14 @@ async function main() {
 
   // Clear existing data in the correct order (due to foreign key constraints)
   await prisma.cartItem.deleteMany();
+  await prisma.refund.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.productImage.deleteMany();
   await prisma.productToCategory.deleteMany();
+  await prisma.productToSubCategory.deleteMany(); // Add this new junction table
   await prisma.product.deleteMany();
+  await prisma.productSubCategory.deleteMany(); // Add subcategories
   await prisma.productCategory.deleteMany();
   await prisma.business.deleteMany();
   await prisma.brand.deleteMany();
@@ -43,7 +53,7 @@ async function main() {
       phone: "902-555-0101",
       role: UserRole.VENDOR,
       image:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b5bb?w=150&h=150&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
     },
     {
       name: "Mike Thompson",
@@ -184,46 +194,32 @@ async function main() {
   // Create Product Categories
   const categories: Prisma.ProductCategoryCreateInput[] = [
     {
-      categoryName: "Fresh Organic Produce",
-      categoryDescription: "Fresh fruits and vegetables",
-      subCategoryName: "Organic",
-      subCategoryDescription: "Certified organic produce",
+      name: "Fresh Organic Produce",
+      description: "Fresh fruits and vegetables",
     },
     {
-      categoryName: "Fresh Local Produce",
-      categoryDescription: "Fresh fruits and vegetables",
-      subCategoryName: "Local",
-      subCategoryDescription: "Locally grown produce",
+      name: "Fresh Local Produce",
+      description: "Fresh fruits and vegetables",
     },
     {
-      categoryName: "Dairy & Eggs",
-      categoryDescription: "Fresh dairy products and farm eggs",
-      subCategoryName: "Organic Dairy",
-      subCategoryDescription: "Organic milk, cheese, and yogurt",
+      name: "Dairy & Eggs",
+      description: "Fresh dairy products and farm eggs",
     },
     {
-      categoryName: "Baked Goods",
-      categoryDescription: "Fresh breads, pastries, and desserts",
-      subCategoryName: "Artisan Breads",
-      subCategoryDescription: "Handcrafted artisan breads",
+      name: "Baked Goods",
+      description: "Fresh breads, pastries, and desserts",
     },
     {
-      categoryName: "Beverages",
-      categoryDescription: "Coffee, tea, and specialty drinks",
-      subCategoryName: "Coffee",
-      subCategoryDescription: "Roasted coffee beans and ground coffee",
+      name: "Beverages",
+      description: "Coffee, tea, and specialty drinks",
     },
     {
-      categoryName: "Seafood",
-      categoryDescription: "Fresh and frozen seafood",
-      subCategoryName: "Fresh Fish",
-      subCategoryDescription: "Daily fresh catch from local waters",
+      name: "Seafood",
+      description: "Fresh and frozen seafood",
     },
     {
-      categoryName: "Handcrafted Items",
-      categoryDescription: "Locally made crafts and artisan goods",
-      subCategoryName: "Home Decor",
-      subCategoryDescription: "Handmade decorative items",
+      name: "Handcrafted Items",
+      description: "Locally made crafts and artisan goods",
     },
   ];
 
@@ -235,6 +231,56 @@ async function main() {
     createdCategories.push(createdCategory);
   }
   console.log(`✅ Created ${createdCategories.length} product categories`);
+
+  // Create Product SubCategories
+  const subCategories: Prisma.ProductSubCategoryCreateInput[] = [
+    {
+      name: "Organic",
+      description: "Certified organic produce",
+      category: { connect: { id: createdCategories[0].id } }, // Fresh Organic Produce
+    },
+    {
+      name: "Local",
+      description: "Locally grown produce",
+      category: { connect: { id: createdCategories[1].id } }, // Fresh Local Produce
+    },
+    {
+      name: "Organic Dairy",
+      description: "Organic milk, cheese, and yogurt",
+      category: { connect: { id: createdCategories[2].id } }, // Dairy & Eggs
+    },
+    {
+      name: "Artisan Breads",
+      description: "Handcrafted artisan breads",
+      category: { connect: { id: createdCategories[3].id } }, // Baked Goods
+    },
+    {
+      name: "Coffee",
+      description: "Roasted coffee beans and ground coffee",
+      category: { connect: { id: createdCategories[4].id } }, // Beverages
+    },
+    {
+      name: "Fresh Fish",
+      description: "Daily fresh catch from local waters",
+      category: { connect: { id: createdCategories[5].id } }, // Seafood
+    },
+    {
+      name: "Home Decor",
+      description: "Handmade decorative items",
+      category: { connect: { id: createdCategories[6].id } }, // Handcrafted Items
+    },
+  ];
+
+  const createdSubCategories = [];
+  for (const subCategory of subCategories) {
+    const createdSubCategory = await prisma.productSubCategory.create({
+      data: subCategory,
+    });
+    createdSubCategories.push(createdSubCategory);
+  }
+  console.log(
+    `✅ Created ${createdSubCategories.length} product subcategories`
+  );
 
   // Create Businesses (only for vendor users)
   const vendorUsers = createdUsers.filter(
@@ -533,6 +579,115 @@ async function main() {
   }
   console.log(`✅ Created ${createdProducts.length} products`);
 
+  // Create Product Category and SubCategory associations
+  const productCategoryAssociations = [
+    // Organic Kale Bundle - Fresh Organic Produce
+    { productId: createdProducts[0].id, categoryId: createdCategories[0].id },
+    // Farm Fresh Eggs - Dairy & Eggs
+    { productId: createdProducts[1].id, categoryId: createdCategories[2].id },
+    // Organic Honey - Fresh Organic Produce
+    { productId: createdProducts[2].id, categoryId: createdCategories[0].id },
+    // Heirloom Tomatoes - Fresh Local Produce
+    { productId: createdProducts[3].id, categoryId: createdCategories[1].id },
+    // Hand-carved Wooden Bowl - Handcrafted Items
+    { productId: createdProducts[4].id, categoryId: createdCategories[6].id },
+    // Artisan Sourdough Loaf - Baked Goods
+    { productId: createdProducts[5].id, categoryId: createdCategories[3].id },
+    // Local Roasted Coffee - Beverages
+    { productId: createdProducts[6].id, categoryId: createdCategories[4].id },
+    // Atlantic Salmon Fillet - Seafood
+    { productId: createdProducts[7].id, categoryId: createdCategories[5].id },
+    // Maple Walnut Bread - Baked Goods
+    { productId: createdProducts[8].id, categoryId: createdCategories[3].id },
+    // Earl Grey Tea Blend - Beverages
+    { productId: createdProducts[9].id, categoryId: createdCategories[4].id },
+    // Smoked Mackerel - Seafood
+    { productId: createdProducts[10].id, categoryId: createdCategories[5].id },
+    // Cinnamon Raisin Bagels - Baked Goods
+    { productId: createdProducts[11].id, categoryId: createdCategories[3].id },
+  ];
+
+  for (const association of productCategoryAssociations) {
+    await prisma.productToCategory.create({
+      data: association,
+    });
+  }
+  console.log(
+    `✅ Created ${productCategoryAssociations.length} product-category associations`
+  );
+
+  const productSubCategoryAssociations = [
+    // Organic Kale Bundle - Organic
+    {
+      productId: createdProducts[0].id,
+      subCategoryId: createdSubCategories[0].id,
+    },
+    // Farm Fresh Eggs - Organic Dairy
+    {
+      productId: createdProducts[1].id,
+      subCategoryId: createdSubCategories[2].id,
+    },
+    // Organic Honey - Organic
+    {
+      productId: createdProducts[2].id,
+      subCategoryId: createdSubCategories[0].id,
+    },
+    // Heirloom Tomatoes - Local
+    {
+      productId: createdProducts[3].id,
+      subCategoryId: createdSubCategories[1].id,
+    },
+    // Hand-carved Wooden Bowl - Home Decor
+    {
+      productId: createdProducts[4].id,
+      subCategoryId: createdSubCategories[6].id,
+    },
+    // Artisan Sourdough Loaf - Artisan Breads
+    {
+      productId: createdProducts[5].id,
+      subCategoryId: createdSubCategories[3].id,
+    },
+    // Local Roasted Coffee - Coffee
+    {
+      productId: createdProducts[6].id,
+      subCategoryId: createdSubCategories[4].id,
+    },
+    // Atlantic Salmon Fillet - Fresh Fish
+    {
+      productId: createdProducts[7].id,
+      subCategoryId: createdSubCategories[5].id,
+    },
+    // Maple Walnut Bread - Artisan Breads
+    {
+      productId: createdProducts[8].id,
+      subCategoryId: createdSubCategories[3].id,
+    },
+    // Earl Grey Tea Blend - Coffee (closest we have)
+    {
+      productId: createdProducts[9].id,
+      subCategoryId: createdSubCategories[4].id,
+    },
+    // Smoked Mackerel - Fresh Fish
+    {
+      productId: createdProducts[10].id,
+      subCategoryId: createdSubCategories[5].id,
+    },
+    // Cinnamon Raisin Bagels - Artisan Breads
+    {
+      productId: createdProducts[11].id,
+      subCategoryId: createdSubCategories[3].id,
+    },
+  ];
+
+  for (const association of productSubCategoryAssociations) {
+    await prisma.productToSubCategory.create({
+      data: association,
+    });
+  }
+  console.log(
+    `✅ Created ${productSubCategoryAssociations.length} product-subcategory associations`
+  );
+
   // Create Product Images
   const productImages = [
     // Kale Bundle
@@ -743,70 +898,6 @@ async function main() {
   }
   console.log(`✅ Created ${productImages.length} product images`);
 
-  // Create Product-Category relationships
-  const productCategoryMappings = [
-    // Produce
-    { productId: createdProducts[0].id, categoryId: createdCategories[0].id }, // Kale -> Fresh Organic Produce
-    { productId: createdProducts[3].id, categoryId: createdCategories[1].id }, // Tomatoes -> Fresh Local Produce
-
-    // Dairy
-    { productId: createdProducts[1].id, categoryId: createdCategories[2].id }, // Eggs -> Dairy & Eggs/Organic
-    { productId: createdProducts[2].id, categoryId: createdCategories[2].id }, // Honey -> Dairy & Eggs/Organic
-
-    // Baked Goods
-    { productId: createdProducts[8].id, categoryId: createdCategories[3].id }, // Sourdough -> Baked Goods/Artisan
-    { productId: createdProducts[11].id, categoryId: createdCategories[3].id }, // Scones -> Baked Goods/Artisan
-
-    // Beverages
-    { productId: createdProducts[9].id, categoryId: createdCategories[4].id }, // Coffee -> Beverages/Coffee
-
-    // Seafood
-    { productId: createdProducts[7].id, categoryId: createdCategories[5].id }, // Salmon -> Seafood/Fresh Fish
-    { productId: createdProducts[10].id, categoryId: createdCategories[5].id }, // Lobster Kit -> Seafood/Fresh Fish
-
-    // Handcrafted
-    { productId: createdProducts[4].id, categoryId: createdCategories[6].id }, // Wooden Bowl -> Handcrafted/Home Decor
-    { productId: createdProducts[5].id, categoryId: createdCategories[6].id }, // Ceramic Mug -> Handcrafted/Home Decor
-    { productId: createdProducts[6].id, categoryId: createdCategories[6].id }, // Wool Scarf -> Handcrafted/Home Decor
-
-    // New product-category mappings for the 15 additional products
-    // Fresh Produce
-    { productId: createdProducts[12].id, categoryId: createdCategories[0].id }, // Spinach -> Fresh Organic Produce
-    { productId: createdProducts[13].id, categoryId: createdCategories[0].id }, // Carrots -> Fresh Organic Produce
-    { productId: createdProducts[16].id, categoryId: createdCategories[1].id }, // Apples -> Fresh Local Produce
-
-    // Dairy & Eggs
-    { productId: createdProducts[14].id, categoryId: createdCategories[2].id }, // Milk -> Dairy & Eggs/Organic
-    { productId: createdProducts[15].id, categoryId: createdCategories[2].id }, // Goat Cheese -> Dairy & Eggs/Organic
-
-    // Baked Goods
-    { productId: createdProducts[23].id, categoryId: createdCategories[3].id }, // Maple Walnut Bread -> Baked Goods/Artisan
-    { productId: createdProducts[26].id, categoryId: createdCategories[3].id }, // Cinnamon Raisin Bagels -> Baked Goods/Artisan
-
-    // Beverages
-    { productId: createdProducts[24].id, categoryId: createdCategories[4].id }, // Earl Grey Tea -> Beverages/Coffee
-
-    // Seafood
-    { productId: createdProducts[22].id, categoryId: createdCategories[5].id }, // Haddock -> Seafood/Fresh Fish
-    { productId: createdProducts[25].id, categoryId: createdCategories[5].id }, // Smoked Mackerel -> Seafood/Fresh Fish
-
-    // Handcrafted Items
-    { productId: createdProducts[17].id, categoryId: createdCategories[6].id }, // Handwoven Basket -> Handcrafted/Home Decor
-    { productId: createdProducts[18].id, categoryId: createdCategories[6].id }, // Sea Glass Jewelry -> Handcrafted/Home Decor
-    { productId: createdProducts[19].id, categoryId: createdCategories[6].id }, // Driftwood Wall Art -> Handcrafted/Home Decor
-    { productId: createdProducts[20].id, categoryId: createdCategories[6].id }, // Hand-knitted Mittens -> Handcrafted/Home Decor
-    { productId: createdProducts[21].id, categoryId: createdCategories[6].id }, // Pottery Dinner Set -> Handcrafted/Home Decor
-  ];
-
-  for (const mapping of productCategoryMappings) {
-    await prisma.productToCategory.create({
-      data: mapping,
-    });
-  }
-  console.log(
-    `✅ Created ${productCategoryMappings.length} product-category relationships`
-  );
-
   // Create Orders
   const customerUsers = createdUsers.filter(
     (user) => user.role === UserRole.CUSTOMER
@@ -973,6 +1064,52 @@ async function main() {
   }
   console.log("✅ Updated order totals");
 
+  // Create Refunds for some completed orders
+  const completedOrders = createdOrders.filter(
+    (order) => order.status === OrderStatus.COMPLETED
+  );
+
+  const refunds = [
+    {
+      orderId: completedOrders[0].id, // Emily's first order
+      userId: completedOrders[0].userId,
+      businessId: completedOrders[0].businessId,
+      amount: 4.99, // Partial refund for one item (Kale)
+      reason: RefundReason.DAMAGED,
+      status: RefundStatus.PROCESSED,
+      notes: "Kale was wilted upon delivery",
+      processedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    },
+    {
+      orderId: completedOrders[1].id, // David's first order
+      userId: completedOrders[1].userId,
+      businessId: completedOrders[1].businessId,
+      amount: 24.99, // Full refund for ceramic mug
+      reason: RefundReason.QUALITY_ISSUE,
+      status: RefundStatus.PROCESSED,
+      notes: "Ceramic mug arrived with a crack",
+      processedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+    },
+    {
+      orderId: completedOrders[2].id, // David's second order
+      userId: completedOrders[2].userId,
+      businessId: completedOrders[2].businessId,
+      amount: 6.99, // Partial refund for eggs
+      reason: RefundReason.COURTESY,
+      status: RefundStatus.APPROVED,
+      notes: "Customer service gesture for late delivery",
+    },
+  ];
+
+  const createdRefunds = [];
+  for (const refund of refunds) {
+    const createdRefund = await prisma.refund.create({
+      data: refund,
+    });
+    createdRefunds.push(createdRefund);
+  }
+  console.log(`✅ Created ${createdRefunds.length} refunds`);
+
   console.log("🎉 Database seeding completed successfully!");
   console.log(`
   📊 Summary:
@@ -982,9 +1119,9 @@ async function main() {
   - ${createdBusinesses.length} businesses
   - ${createdProducts.length} products
   - ${productImages.length} product images
-  - ${productCategoryMappings.length} product-category relationships
   - ${createdOrders.length} orders
   - ${orderItems.length} order items
+  - ${createdRefunds.length} refunds
   `);
 }
 

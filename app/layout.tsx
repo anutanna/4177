@@ -3,7 +3,7 @@ import "./globals.css";
 import { inter } from "@/lib/fonts";
 import Header from "@/lib/ui/header/Header";
 import Footer from "@/lib/ui/footer/Footer";
-import { CartProvider } from '@/lib/ui/context/CartContext';
+import { CartProvider } from "@/lib/ui/context/CartContext";
 
 export const metadata: Metadata = {
   title: "Shopizon",
@@ -24,17 +24,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="light">
-      <body className={`${inter.className} antialiased bg-gray-50`}>
+      <body
+        className={`${inter.className} antialiased bg-gray-50 min-h-screen flex flex-col`}
+      >
         <CartProvider>
           <Header />
-          <main className="container mx-auto p-4">
-            {children}
-          </main>
+          <main className="container mx-auto p-4 flex-grow">{children}</main>
           <Footer />
         </CartProvider>
       </body>
     </html>
   );
 }
-
-

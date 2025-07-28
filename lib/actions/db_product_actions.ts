@@ -62,7 +62,7 @@ export async function getProductsPaginated(
 }
 
 export async function getLatestProducts(limit: number = 10) {
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 3000));
   try {
     const products = await db.product.findMany({
       include: {
@@ -142,12 +142,120 @@ export async function updateProduct(
       include: {
         business: true,
         brand: true,
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+        images: true,
       },
     });
     return product;
   } catch (error) {
     console.error("Error updating product:", error);
     throw new Error("Failed to update product");
+  }
+}
+
+export async function updateProductWithCategories(
+  id: string,
+  name?: string,
+  description?: string | null,
+  price?: number,
+  stock?: number,
+  brandId?: string,
+  categoryIds?: string[],
+  subCategoryIds?: string[]
+) {
+  try {
+    const updateData: {
+      name?: string;
+      description?: string | null;
+      price?: number;
+      stock?: number;
+      brandId?: string;
+    } = {};
+
+    if (name !== undefined) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (price !== undefined) updateData.price = price;
+    if (stock !== undefined) updateData.stock = stock;
+    if (brandId !== undefined) updateData.brandId = brandId;
+
+    // Update product and handle categories in a transaction
+    const result = await db.$transaction(async (tx) => {
+      // Update the product
+      await tx.product.update({
+        where: { id },
+        data: updateData,
+      });
+
+      // Handle category updates if provided
+      if (categoryIds !== undefined) {
+        // Remove all existing category associations
+        await tx.productToCategory.deleteMany({
+          where: { productId: id },
+        });
+
+        // Add new category associations
+        if (categoryIds.length > 0) {
+          await tx.productToCategory.createMany({
+            data: categoryIds.map((categoryId) => ({
+              productId: id,
+              categoryId,
+            })),
+          });
+        }
+      }
+
+      // Handle subcategory updates if provided
+      if (subCategoryIds !== undefined) {
+        // Remove all existing subcategory associations
+        await tx.productToSubCategory.deleteMany({
+          where: { productId: id },
+        });
+
+        // Add new subcategory associations
+        if (subCategoryIds.length > 0) {
+          await tx.productToSubCategory.createMany({
+            data: subCategoryIds.map((subCategoryId) => ({
+              productId: id,
+              subCategoryId,
+            })),
+          });
+        }
+      }
+
+      // Return the updated product with all relations
+      // Return the updated product with all relations
+      return await tx.product.findUnique({
+        where: { id },
+        include: {
+          business: true,
+          brand: true,
+          categories: {
+            include: {
+              category: true,
+            },
+          },
+          subCategories: {
+            include: {
+              subCategory: {
+                include: {
+                  category: true,
+                },
+              },
+            },
+          },
+          images: true,
+        },
+      });
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error updating product with categories:", error);
+    throw new Error("Failed to update product with categories");
   }
 }
 
@@ -174,6 +282,15 @@ export async function getProductById(id: string) {
         categories: {
           include: {
             category: true,
+          },
+        },
+        subCategories: {
+          include: {
+            subCategory: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
         orderItems: true,

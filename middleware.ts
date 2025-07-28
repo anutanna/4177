@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   const session = getSessionCookie(request);
   const { pathname } = request.nextUrl;
   const authRoutes = ["/login", "/signup", "/forgot-password"];
-  const protectedRoutes = ["/cart", "/dashboard"];
+  const protectedRoutes = ["/cart", "/dashboard", "/business-registration"];
 
   // If user has session and tries to access auth routes, redirect to home
   if (session && authRoutes.some((route) => pathname.startsWith(route))) {
@@ -24,6 +24,7 @@ export const config = {
   matcher: [
     "/cart/:path*",
     "/dashboard/:path*",
+    "/business-registration",
     "/login",
     "/signup",
     "/forgot-password",

@@ -4,6 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaEye, FaTrash } from "react-icons/fa";
+import { deleteProduct } from "@/lib/actions/db_product_actions";
+import { useRouter } from "next/navigation";
 
 interface InventoryProduct {
   id: string;
@@ -20,7 +22,9 @@ interface InventoryTableProps {
 }
 
 export default function InventoryTable({ products }: InventoryTableProps) {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const itemsPerPage = 10;
 
   // Calculate pagination
@@ -50,6 +54,24 @@ export default function InventoryTable({ products }: InventoryTableProps) {
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleDeleteProduct = async (productId: string, productName: string) => {
+    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeleting(productId);
+    try {
+      await deleteProduct(productId);
+      // Refresh the page to show updated product list
+      router.refresh();
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("Failed to delete product. Please try again.");
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   // Generate page numbers for pagination
@@ -157,8 +179,14 @@ export default function InventoryTable({ products }: InventoryTableProps) {
                     <button
                       className="btn btn-circle btn-sm bg-red-700 hover:bg-red-800 border-none"
                       title="Delete Product"
+                      onClick={() => handleDeleteProduct(product.id, product.name)}
+                      disabled={isDeleting === product.id}
                     >
-                      <FaTrash className="text-white text-xs" />
+                      {isDeleting === product.id ? (
+                        <div className="loading loading-spinner loading-xs text-white"></div>
+                      ) : (
+                        <FaTrash className="text-white text-xs" />
+                      )}
                     </button>
                   </div>
                 </td>

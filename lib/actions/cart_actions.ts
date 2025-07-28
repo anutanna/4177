@@ -97,3 +97,77 @@ export async function getCartCount() {
     return 0;
   }
 }
+
+export async function updateCartItemQuantity(
+  cartItemId: string,
+  quantity: number
+) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    if (!quantity || quantity < 1) {
+      return { success: false, error: "Invalid quantity" };
+    }
+
+    // Verify the cart item belongs to the user
+    const cartItem = await db.cartItem.findFirst({
+      where: {
+        id: cartItemId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!cartItem) {
+      return { success: false, error: "Cart item not found" };
+    }
+
+    await db.cartItem.update({
+      where: { id: cartItemId },
+      data: { quantity },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating cart item quantity:", error);
+    return { success: false, error: "Failed to update cart item" };
+  }
+}
+
+export async function removeCartItem(cartItemId: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    // Verify the cart item belongs to the user
+    const cartItem = await db.cartItem.findFirst({
+      where: {
+        id: cartItemId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!cartItem) {
+      return { success: false, error: "Cart item not found" };
+    }
+
+    await db.cartItem.delete({
+      where: { id: cartItemId },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error removing cart item:", error);
+    return { success: false, error: "Failed to remove cart item" };
+  }
+}

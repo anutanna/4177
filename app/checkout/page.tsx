@@ -2,10 +2,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { headers } from "next/headers";
 import { getCartItems } from "@/lib/actions/cart_actions";
-import MiniHero from "@/lib/ui/dashboard/MiniHero";
-import CartContent from "@/app/cart/CartContent";
+import CheckoutContent from "./CheckoutContent";
 
-export default async function CartPage() {
+export default async function CheckoutPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -16,15 +15,14 @@ export default async function CartPage() {
 
   const cartItems = await getCartItems();
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[#ffefaf6]">
-      <MiniHero
-        title="Your Shopping Cart"
-        backgroundImage="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=1200&h=400&fit=crop"
-      />
+  if (cartItems.length === 0) {
+    redirect("/cart");
+  }
 
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <main className="flex-grow container mx-auto px-4 py-8">
-        <CartContent initialCartItems={cartItems} />
+        <CheckoutContent cartItems={cartItems} />
       </main>
     </div>
   );

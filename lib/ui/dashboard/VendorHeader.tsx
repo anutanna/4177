@@ -14,6 +14,7 @@ export default function VendorHeader({
 }: VendorHeaderProps) {
   const tabs = [
     { label: "Dashboard", href: "/dashboard" },
+    { label: "Product Management", href: "/vendor/products" },
     { label: "Inventory", href: "/inventory" },
     { label: "Settings", href: "/settings" },
   ];

@@ -5,12 +5,12 @@ import { UserRole } from "@prisma/client";
 import { FaPlus } from "react-icons/fa";
 import Link from "next/link";
 import VendorPageLayout from "@/lib/ui/dashboard/VendorPageLayout";
-import InventoryTable from "@/lib/ui/inventory/InventoryTable";
 import { getBusinessByUserId } from "@/lib/actions/db_order_actions";
 import { getProductsByBusiness } from "@/lib/actions/db_product_actions";
+import ProductManagementTable from "@/lib/ui/vendor/ProductManagementTable";
 
-// Types for the inventory
-interface InventoryProduct {
+// Types for the product management
+interface ProductManagementItem {
   id: string;
   name: string;
   description: string;
@@ -20,14 +20,13 @@ interface InventoryProduct {
   status: "Visible" | "Not Visible";
 }
 
-export default async function Inventory() {
-  // Authentication is handled by middleware
-  // Here we only check authorization (vendor role)
+export default async function VendorProductsPage() {
+  // authorization (vendor role)
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  // Check if user has vendor role (user should exist due to middleware auth check)
+  // Checking if user has vendor role (user should exist due to middleware auth check)
   const user = session?.user as {
     role?: UserRole;
     id?: string;
@@ -37,9 +36,9 @@ export default async function Inventory() {
     redirect("/unauthorized");
   }
 
-  // Get business and products
+  // business and products
   let business;
-  let products: InventoryProduct[] = [];
+  let products: ProductManagementItem[] = [];
 
   try {
     business = await getBusinessByUserId(user.id!);
@@ -63,18 +62,18 @@ export default async function Inventory() {
       status: product.stock > 0 ? "Visible" : "Not Visible", // Simple logic for now
     }));
   } catch (error) {
-    console.error("Error fetching inventory data:", error);
+    console.error("Error fetching product management data:", error);
     redirect("/unauthorized");
   }
 
   return (
     <VendorPageLayout
-      pageTitle="Inventory Management"
+      pageTitle="Product Management"
       backgroundImage="/hero-bg.jpg"
       vendorName={business?.name || "Shopizon"}
       vendorLogo={business?.logo || "/placeholder-logo.svg"}
-      activeTab="Inventory"
-      sectionTitle="Product Inventory"
+      activeTab="Product Management"
+      sectionTitle="Listed Products"
       actionButton={
         <Link href="/vendor/products/add" className="btn btn-primary gap-2">
           <FaPlus className="text-sm" />
@@ -82,53 +81,13 @@ export default async function Inventory() {
         </Link>
       }
     >
-      {/* DaisyUI: card component for inventory section */}
+      {/* Product Management Card */}
       <div className="card bg-base-100 shadow-sm border border-gray-300">
         <div className="card-body">
-          {/* Filters Section */}
-          <div className="flex flex-col lg:flex-row gap-4 mb-6">
-            {/* Search Bar */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-base-content mb-2">
-                Search for Product
-              </label>
-              <input
-                type="text"
-                placeholder="Search"
-                className="input input-bordered w-full"
-              />
-            </div>
 
-            {/* Category Dropdown */}
-            <div className="w-full lg:w-auto lg:min-w-48">
-              <label className="block text-sm font-medium text-base-content mb-2">
-                Category
-              </label>
-              <select className="select select-bordered w-full">
-                <option>All</option>
-                <option>Electronics</option>
-                <option>Clothing</option>
-                <option>Home & Garden</option>
-                <option>Sports & Outdoors</option>
-                <option>Books & Media</option>
-              </select>
-            </div>
 
-            {/* Status Dropdown */}
-            <div className="w-full lg:w-auto lg:min-w-48">
-              <label className="block text-sm font-medium text-base-content mb-2">
-                Status
-              </label>
-              <select className="select select-bordered w-full">
-                <option>All</option>
-                <option>Visible</option>
-                <option>Not Visible</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Inventory Table */}
-          <InventoryTable products={products} />
+          {/* Product Management Table */}
+          <ProductManagementTable products={products} />
 
           {/* Total Products Count */}
           <div className="text-left text-sm text-gray-500 mt-4">
@@ -138,4 +97,4 @@ export default async function Inventory() {
       </div>
     </VendorPageLayout>
   );
-}
+} 

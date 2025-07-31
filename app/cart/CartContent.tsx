@@ -15,6 +15,12 @@ import {
   updateCartItemQuantity,
   removeCartItem,
 } from "@/lib/actions/cart_actions";
+import Toast from "@/lib/ui/components/Toast";
+
+interface ToastState {
+  message: string;
+  type: "success" | "error" | "info" | "warning";
+}
 
 interface CartItem {
   id: string;
@@ -46,6 +52,7 @@ interface CartContentProps {
 export default function CartContent({ initialCartItems }: CartContentProps) {
   const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
   const [isPending, startTransition] = useTransition();
+  const [toast, setToast] = useState<ToastState | null>(null);
   const router = useRouter();
 
   const handleQuantityChange = async (id: string, delta: number) => {
@@ -71,6 +78,10 @@ export default function CartContent({ initialCartItems }: CartContentProps) {
             item.id === id ? { ...item, quantity: currentItem.quantity } : item
           )
         );
+        setToast({
+          message: "Failed to update quantity: " + result.error,
+          type: "error",
+        });
         console.error("Error updating cart item:", result.error);
       }
     });
@@ -89,7 +100,16 @@ export default function CartContent({ initialCartItems }: CartContentProps) {
         if (itemToRemove) {
           setCartItems((prev) => [...prev, itemToRemove]);
         }
+        setToast({
+          message: "Failed to remove item: " + result.error,
+          type: "error",
+        });
         console.error("Error removing cart item:", result.error);
+      } else {
+        setToast({
+          message: "Item removed from cart",
+          type: "success",
+        });
       }
     });
   };
@@ -290,6 +310,15 @@ export default function CartContent({ initialCartItems }: CartContentProps) {
           </div>
         </div>
       </div>
+
+      {/* Toast Component */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

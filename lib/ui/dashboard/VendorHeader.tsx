@@ -25,7 +25,7 @@ export default function VendorHeader({
         <div className="flex items-center gap-4">
           {/* DaisyUI: avatar component */}
           <div className="avatar">
-            <div className="w-16 h-16 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+            <div className="w-16 h-16 rounded-full ring ring-[#21C1B9] ring-offset-base-100 ring-offset-2">
               <Image
                 src={vendorLogo}
                 alt={`${vendorName} logo`}
@@ -50,7 +50,9 @@ export default function VendorHeader({
               key={tab.label}
               href={tab.href}
               className={`btn ${
-                activeTab === tab.label ? "btn-primary" : "btn-ghost"
+                activeTab === tab.label
+                  ? "bg-gradient-to-r from-[#21C1B9] to-[#1A71D5] text-white font-medium hover:from-[#1DB1A9] hover:to-[#1565C0] border-none"
+                  : "btn-ghost hover:bg-gray-100"
               }`}
             >
               {tab.label}

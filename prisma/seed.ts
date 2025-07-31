@@ -4,6 +4,7 @@ import {
   OrderStatus,
   RefundStatus,
   RefundReason,
+  ProductStatus,
   Prisma,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -350,6 +351,7 @@ async function main() {
       description: "Fresh organic kale, perfect for smoothies and salads",
       price: 4.99,
       stock: 25,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id, // FreshFarms
     },
@@ -358,6 +360,7 @@ async function main() {
       description: "Free-range eggs from local organic farms",
       price: 6.99,
       stock: 40,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id,
     },
@@ -366,6 +369,7 @@ async function main() {
       description: "Pure wildflower honey from Nova Scotia beekeepers",
       price: 12.99,
       stock: 15,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id,
     },
@@ -374,6 +378,7 @@ async function main() {
       description: "Colorful heirloom tomatoes, grown without pesticides",
       price: 7.99,
       stock: 20,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id,
     },
@@ -384,6 +389,7 @@ async function main() {
         "Beautiful maple wood serving bowl, handcrafted by local artisans",
       price: 45.0,
       stock: 8,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id, // Maritime Crafts
     },
@@ -392,6 +398,7 @@ async function main() {
       description: "Handpainted ceramic mug featuring Nova Scotia lighthouses",
       price: 24.99,
       stock: 12,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id,
     },
@@ -400,6 +407,7 @@ async function main() {
       description: "Warm, cozy scarf made from local sheep wool",
       price: 35.0,
       stock: 6,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id,
     },
@@ -409,6 +417,7 @@ async function main() {
       description: "Fresh Atlantic salmon, caught daily by local fishermen",
       price: 18.99,
       stock: 10,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[4].id, // Ocean Bounty
     },
@@ -417,6 +426,7 @@ async function main() {
       description: "Traditional sourdough bread, baked fresh daily",
       price: 5.99,
       stock: 30,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[2].id, // Atlantic Bakery
     },
@@ -425,6 +435,7 @@ async function main() {
       description: "Rich, bold coffee blend roasted locally",
       price: 16.99,
       stock: 22,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[3].id, // Coastal Coffee
     },
@@ -433,6 +444,7 @@ async function main() {
       description: "Everything you need for authentic Maritime lobster rolls",
       price: 29.99,
       stock: 5,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[4].id, // Ocean Bounty
     },
@@ -441,6 +453,7 @@ async function main() {
       description: "Fresh baked scones with wild Nova Scotia blueberries",
       price: 8.99,
       stock: 18,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[2].id, // Atlantic Bakery
     },
@@ -450,6 +463,7 @@ async function main() {
       description: "Fresh organic baby spinach, perfect for salads",
       price: 3.99,
       stock: 35,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id, // FreshFarms
     },
@@ -458,6 +472,7 @@ async function main() {
       description: "Sweet organic carrots, locally grown",
       price: 4.49,
       stock: 28,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id, // FreshFarms
     },
@@ -466,6 +481,7 @@ async function main() {
       description: "Creamy organic milk from grass-fed cows",
       price: 5.99,
       stock: 20,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id, // FreshFarms
     },
@@ -474,6 +490,7 @@ async function main() {
       description: "Creamy goat cheese made by local dairy farmers",
       price: 14.99,
       stock: 12,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id, // FreshFarms
     },
@@ -482,6 +499,7 @@ async function main() {
       description: "Crisp organic red apples from Nova Scotia orchards",
       price: 6.99,
       stock: 25,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[0].id,
       brandId: createdBrands[0].id, // FreshFarms
     },
@@ -491,6 +509,7 @@ async function main() {
       description: "Traditional woven basket made from local willow",
       price: 32.99,
       stock: 7,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id, // Maritime Crafts
     },
@@ -500,6 +519,7 @@ async function main() {
         "Beautiful jewelry made from authentic Nova Scotia sea glass",
       price: 58.99,
       stock: 4,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id, // Maritime Crafts
     },
@@ -508,6 +528,7 @@ async function main() {
       description: "Unique wall art crafted from Atlantic driftwood",
       price: 75.0,
       stock: 3,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id, // Maritime Crafts
     },
@@ -516,6 +537,7 @@ async function main() {
       description: "Warm wool mittens with traditional Maritime patterns",
       price: 28.99,
       stock: 10,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id, // Maritime Crafts
     },
@@ -524,6 +546,7 @@ async function main() {
       description: "Handcrafted ceramic dinner set fired in local kilns",
       price: 89.99,
       stock: 5,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[1].id,
       brandId: createdBrands[1].id, // Maritime Crafts
     },
@@ -533,6 +556,7 @@ async function main() {
       description: "Premium haddock caught in the Bay of Fundy",
       price: 15.99,
       stock: 8,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[4].id, // Ocean Bounty
     },
@@ -541,6 +565,7 @@ async function main() {
       description: "Sweet bread with local maple syrup and walnuts",
       price: 7.99,
       stock: 15,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[2].id, // Atlantic Bakery
     },
@@ -549,6 +574,7 @@ async function main() {
       description: "Premium Earl Grey tea with bergamot oil",
       price: 12.99,
       stock: 20,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[3].id, // Coastal Coffee
     },
@@ -557,6 +583,7 @@ async function main() {
       description: "Traditional cold-smoked Atlantic mackerel",
       price: 22.99,
       stock: 6,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[4].id, // Ocean Bounty
     },
@@ -565,6 +592,7 @@ async function main() {
       description: "Fresh baked bagels with cinnamon and raisins",
       price: 9.99,
       stock: 25,
+      status: ProductStatus.VISIBLE,
       businessId: createdBusinesses[2].id,
       brandId: createdBrands[2].id, // Atlantic Bakery
     },

@@ -14,6 +14,7 @@ import {
 import { getBrands } from "@/lib/actions/db_brand_actions";
 import { getCategories } from "@/lib/actions/db_category_actions";
 import { useRouter } from "next/navigation";
+import { ProductStatus } from "@prisma/client";
 
 interface ProductDetailsProps {
   product: {
@@ -22,6 +23,7 @@ interface ProductDetailsProps {
     description: string | null;
     price: number;
     stock: number;
+    status: ProductStatus;
     images: { url: string }[];
     business: {
       id: string;
@@ -104,13 +106,17 @@ export default function VendorProductDetails({
     description: product.description || "",
     price: product.price.toString(),
     stock: product.stock.toString(),
+    status: product.status,
     brandId: product.brand.id,
     categoryIds: product.categories.map((pc) => pc.category.id),
     subCategoryIds:
       product.subCategories?.map((psc) => psc.subCategory.id) || [],
+    imageUrl: product.images[0]?.url || "",
   });
 
-  const imageUrl = product.images[0]?.url || "/no-image.svg";
+  const imageUrl = isEditing
+    ? formData.imageUrl || "/no-image.svg"
+    : product.images[0]?.url || "/no-image.svg";
 
   // Load brands and categories on component mount and when editing starts
   const loadBrandsAndCategories = useCallback(async () => {
@@ -162,10 +168,12 @@ export default function VendorProductDetails({
       description: product.description || "",
       price: product.price.toString(),
       stock: product.stock.toString(),
+      status: product.status,
       brandId: product.brand.id,
       categoryIds: product.categories.map((pc) => pc.category.id),
       subCategoryIds:
         product.subCategories?.map((psc) => psc.subCategory.id) || [],
+      imageUrl: product.images[0]?.url || "",
     });
   };
 
@@ -180,7 +188,9 @@ export default function VendorProductDetails({
         parseInt(formData.stock),
         formData.brandId,
         formData.categoryIds,
-        formData.subCategoryIds
+        formData.subCategoryIds,
+        formData.imageUrl,
+        formData.status
       );
 
       setIsEditing(false);
@@ -329,7 +339,7 @@ export default function VendorProductDetails({
             {!isEditing ? (
               <>
                 <button
-                  className="btn btn-primary gap-2"
+                  className="btn gap-2"
                   onClick={handleEdit}
                   disabled={isLoading}
                 >
@@ -424,6 +434,23 @@ export default function VendorProductDetails({
                       />
                     </div>
 
+                    {/* Image URL */}
+                    <div>
+                      <label className="block text-sm font-medium text-base-content mb-2">
+                        Image URL
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.imageUrl}
+                        onChange={(e) =>
+                          handleInputChange("imageUrl", e.target.value)
+                        }
+                        disabled={!isEditing}
+                        className="input input-bordered w-full"
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    </div>
+
                     {/* Price and Stock - Two columns */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Price */}
@@ -462,6 +489,41 @@ export default function VendorProductDetails({
                           placeholder="0"
                         />
                       </div>
+                    </div>
+
+                    {/* Status */}
+                    <div>
+                      <label className="block text-sm font-medium text-base-content mb-2">
+                        Status
+                      </label>
+                      {isEditing ? (
+                        <select
+                          value={formData.status}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "status",
+                              e.target.value as ProductStatus
+                            )
+                          }
+                          className="select select-bordered w-full"
+                        >
+                          <option value={ProductStatus.VISIBLE}>Visible</option>
+                          <option value={ProductStatus.HIDDEN}>Hidden</option>
+                          <option value={ProductStatus.ARCHIVED}>
+                            Archived
+                          </option>
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={
+                            product.status.charAt(0).toUpperCase() +
+                            product.status.slice(1).toLowerCase()
+                          }
+                          disabled
+                          className="input input-bordered w-full bg-base-200"
+                        />
+                      )}
                     </div>
 
                     {/* Brand */}

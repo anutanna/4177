@@ -27,7 +27,16 @@ interface Product {
   name: string;
 }
 
-export default function Header() {
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface HeaderProps {
+  categories?: Category[];
+}
+
+export default function Header({ categories = [] }: HeaderProps) {
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<Product[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -258,7 +267,7 @@ export default function Header() {
       </header>
 
       {/* Navigation Bar */}
-      <Nav />
+      <Nav categories={categories} />
 
       {/* Mobile Search Bar */}
       {showSearchBar && (

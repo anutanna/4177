@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/auth";
-import { UserRole } from "@prisma/client";
+import { UserRole, ProductStatus } from "@prisma/client";
 import { FaPlus } from "react-icons/fa";
+import Link from "next/link";
 import VendorPageLayout from "@/lib/ui/dashboard/VendorPageLayout";
-import InventoryTable from "@/lib/ui/inventory/InventoryTable";
+import InventoryClient from "@/lib/ui/inventory/InventoryClient";
 import { getBusinessByUserId } from "@/lib/actions/db_order_actions";
 import { getProductsByBusiness } from "@/lib/actions/db_product_actions";
 
@@ -16,7 +17,7 @@ interface InventoryProduct {
   image: string;
   price: number;
   quantity: number;
-  status: "Visible" | "Not Visible";
+  status: ProductStatus;
 }
 
 export default async function Inventory() {
@@ -59,7 +60,7 @@ export default async function Inventory() {
       image: product.images?.[0]?.url || "/no-image.svg",
       price: product.price,
       quantity: product.stock,
-      status: product.stock > 0 ? "Visible" : "Not Visible", // Simple logic for now
+      status: product.status, // Use the actual ProductStatus from database
     }));
   } catch (error) {
     console.error("Error fetching inventory data:", error);
@@ -75,10 +76,10 @@ export default async function Inventory() {
       activeTab="Inventory"
       sectionTitle="Product Inventory"
       actionButton={
-        <button className="btn btn-primary gap-2">
+        <Link href="/vendor/products/new" className="btn btn-success gap-2">
           <FaPlus className="text-sm" />
           Add Product(s)
-        </button>
+        </Link>
       }
     >
       {/* DaisyUI: card component for inventory section */}
@@ -121,13 +122,14 @@ export default async function Inventory() {
               <select className="select select-bordered w-full">
                 <option>All</option>
                 <option>Visible</option>
-                <option>Not Visible</option>
+                <option>Hidden</option>
+                <option>Archived</option>
               </select>
             </div>
           </div>
 
           {/* Inventory Table */}
-          <InventoryTable products={products} />
+          <InventoryClient initialProducts={products} />
 
           {/* Total Products Count */}
           <div className="text-left text-sm text-gray-500 mt-4">

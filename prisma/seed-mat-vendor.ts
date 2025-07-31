@@ -4,6 +4,7 @@ import {
   OrderStatus,
   RefundStatus,
   RefundReason,
+  ProductStatus,
 } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -65,6 +66,11 @@ async function seedMatVendor() {
     console.log("🧹 Clearing existing data for mat@dal.ca business...");
 
     // Delete in correct order due to foreign key constraints
+    // First delete refunds that reference orders
+    await prisma.refund.deleteMany({
+      where: { businessId: business.id },
+    });
+
     await prisma.orderItem.deleteMany({
       where: {
         order: {
@@ -87,6 +93,15 @@ async function seedMatVendor() {
     });
 
     await prisma.productToCategory.deleteMany({
+      where: {
+        product: {
+          businessId: business.id,
+        },
+      },
+    });
+
+    // Delete product images before deleting products
+    await prisma.productImage.deleteMany({
       where: {
         product: {
           businessId: business.id,
@@ -174,41 +189,81 @@ async function seedMatVendor() {
       prisma.product.create({
         data: {
           name: "Computer Science Fundamentals",
-          description: "Essential textbook for computer science students",
+          description:
+            "Essential textbook for computer science students covering algorithms, data structures, and programming fundamentals. Perfect for undergraduate computer science courses. Includes practical examples and exercises to enhance learning experience.",
           price: 89.99,
           stock: 15,
+          status: ProductStatus.VISIBLE,
           businessId: business.id,
           brandId: matBrand.id,
+          images: {
+            create: [
+              {
+                url: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600&h=600&fit=crop",
+                altText: "Computer Science Fundamentals textbook",
+              },
+            ],
+          },
         },
       }),
       prisma.product.create({
         data: {
           name: "Programming Notebook Set",
-          description: "High-quality notebooks perfect for coding notes",
+          description:
+            "High-quality notebooks perfect for coding notes and algorithm sketches. Set includes 3 notebooks with grid paper ideal for drawing diagrams and writing clean code. Durable covers and premium paper quality.",
           price: 24.99,
           stock: 30,
+          status: ProductStatus.VISIBLE,
           businessId: business.id,
           brandId: matBrand.id,
+          images: {
+            create: [
+              {
+                url: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&h=600&fit=crop",
+                altText: "Programming notebook set with grid paper",
+              },
+            ],
+          },
         },
       }),
       prisma.product.create({
         data: {
           name: "Academic Calculator Pro",
-          description: "Advanced calculator for mathematical computations",
+          description:
+            "Advanced scientific calculator for mathematical computations and statistical analysis. Features programmable functions, graphing capabilities, and extensive mathematical operations. Essential for engineering and mathematics students.",
           price: 67.5,
           stock: 12,
+          status: ProductStatus.VISIBLE,
           businessId: business.id,
           brandId: matBrand.id,
+          images: {
+            create: [
+              {
+                url: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600&h=600&fit=crop",
+                altText: "Advanced scientific calculator",
+              },
+            ],
+          },
         },
       }),
       prisma.product.create({
         data: {
           name: "Study Lamp LED",
-          description: "Adjustable LED desk lamp for late-night studying",
+          description:
+            "Adjustable LED desk lamp for late-night studying sessions. Features multiple brightness levels, flexible positioning, and energy-efficient LED bulbs. Reduces eye strain during long study periods. Modern design fits any workspace.",
           price: 45.0,
           stock: 8,
+          status: ProductStatus.VISIBLE,
           businessId: business.id,
           brandId: matBrand.id,
+          images: {
+            create: [
+              {
+                url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=600&fit=crop",
+                altText: "Modern LED desk lamp for studying",
+              },
+            ],
+          },
         },
       }),
     ]);

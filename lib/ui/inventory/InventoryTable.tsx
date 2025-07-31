@@ -4,6 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaEye, FaTrash } from "react-icons/fa";
+import { deleteProduct } from "@/lib/actions/db_product_actions";
+import DeleteConfirmationModal from "@/lib/ui/components/DeleteConfirmationModal";
+import Toast from "@/lib/ui/components/Toast";
+import { ProductStatus } from "@prisma/client";
 
 interface InventoryProduct {
   id: string;
@@ -12,15 +16,28 @@ interface InventoryProduct {
   image: string;
   price: number;
   quantity: number;
-  status: "Visible" | "Not Visible";
+  status: ProductStatus;
 }
 
 interface InventoryTableProps {
   products: InventoryProduct[];
+  onProductDeleted?: () => void;
 }
 
-export default function InventoryTable({ products }: InventoryTableProps) {
+interface ToastState {
+  message: string;
+  type: "success" | "error" | "info" | "warning";
+}
+
+export default function InventoryTable({
+  products,
+  onProductDeleted,
+}: InventoryTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] =
+    useState<InventoryProduct | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
   const itemsPerPage = 10;
 
   // Calculate pagination
@@ -31,9 +48,11 @@ export default function InventoryTable({ products }: InventoryTableProps) {
 
   const getStatusStyle = (status: InventoryProduct["status"]) => {
     switch (status) {
-      case "Visible":
+      case ProductStatus.VISIBLE:
         return "badge badge-success";
-      case "Not Visible":
+      case ProductStatus.HIDDEN:
+        return "badge badge-warning";
+      case ProductStatus.ARCHIVED:
         return "badge badge-error";
       default:
         return "badge badge-neutral";
@@ -50,6 +69,41 @@ export default function InventoryTable({ products }: InventoryTableProps) {
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleDeleteClick = (product: InventoryProduct) => {
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return;
+
+    try {
+      await deleteProduct(productToDelete.id);
+      setToast({
+        message: "Product deleted successfully!",
+        type: "success",
+      });
+      setShowDeleteModal(false);
+      setProductToDelete(null);
+
+      // Call the callback to refresh the data
+      if (onProductDeleted) {
+        onProductDeleted();
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      setToast({
+        message: "Failed to delete product. Please try again.",
+        type: "error",
+      });
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
   };
 
   // Generate page numbers for pagination
@@ -138,7 +192,8 @@ export default function InventoryTable({ products }: InventoryTableProps) {
                 {/* Status */}
                 <td>
                   <span className={getStatusStyle(product.status)}>
-                    {product.status}
+                    {product.status.charAt(0).toUpperCase() +
+                      product.status.slice(1).toLowerCase()}
                   </span>
                 </td>
 
@@ -155,6 +210,7 @@ export default function InventoryTable({ products }: InventoryTableProps) {
                     </Link>
                     {/* Delete button - dark red circle with white trash */}
                     <button
+                      onClick={() => handleDeleteClick(product)}
                       className="btn btn-circle btn-sm bg-red-700 hover:bg-red-800 border-none"
                       title="Delete Product"
                     >
@@ -201,6 +257,25 @@ export default function InventoryTable({ products }: InventoryTableProps) {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone and will permanently remove the product from your inventory."
+        itemName={productToDelete?.name}
+      />
+
+      {/* Toast Component */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
   );

@@ -85,7 +85,7 @@ export default function ProductCarousel({ products }: ProductCarouselProps) {
               <ProductCard
                 name={product.name}
                 image={product.images?.[0]?.url || "/no-image.svg"}
-                price={`${product.price}`}
+                price={product.price}
                 id={product.id}
               />
             </div>

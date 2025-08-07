@@ -1,6 +1,10 @@
 Hello everyone! Shopizon is made using NextJS React framework.
 Let's dive in:
 
+Live Site: https://shopizon-uhpl.onrender.com/ 
+
+To run locally: 
+
 ## After Cloning the Repo:
 
 **First, install all the project and development dependencis by running the following command:**

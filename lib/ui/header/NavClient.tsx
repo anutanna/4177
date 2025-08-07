@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { FaChevronDown, FaCubes, FaTag, FaHeart, FaList } from "react-icons/fa";
+import { FaChevronDown, FaCubes } from "react-icons/fa";
 
 interface Category {
   id: string;
@@ -15,28 +15,6 @@ interface NavClientProps {
 }
 
 export default function NavClient({ categories }: NavClientProps) {
-  // Static nav items (non-browse items)
-  const staticNavItems = [
-    {
-      label: "Promotions",
-      icon: FaTag,
-      href: "/promotions",
-      hasDropdown: false,
-    },
-    {
-      label: "Favourites",
-      icon: FaHeart,
-      href: "/favourites",
-      hasDropdown: false,
-    },
-    {
-      label: "Lists",
-      icon: FaList,
-      href: "/lists",
-      hasDropdown: false,
-    },
-  ];
-
   return (
     <nav className="hidden md:block w-full shadow-md relative bg-gradient-to-r from-[#21C1B9] to-[#1A71D5] z-10">
       <div className="container mx-auto px-4">
@@ -77,21 +55,6 @@ export default function NavClient({ categories }: NavClientProps) {
               ))}
             </ul>
           </div>
-
-          {/* Static nav items */}
-          {staticNavItems.map((item, index) => {
-            const IconComponent = item.icon;
-            return (
-              <Link
-                key={index}
-                href={item.href || "#"}
-                className="flex items-center gap-2 px-4 py-3 text-white font-medium hover:bg-white/20 transition-colors duration-200"
-              >
-                <IconComponent className="text-white" />
-                <span className="text-white">{item.label}</span>
-              </Link>
-            );
-          })}
         </div>
       </div>
     </nav>

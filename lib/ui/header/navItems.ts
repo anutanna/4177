@@ -1,4 +1,4 @@
-import { FaCubes, FaTag, FaHeart, FaList } from "react-icons/fa";
+import { FaCubes } from "react-icons/fa";
 
 export interface NavItem {
   label: string;
@@ -22,23 +22,5 @@ export const navItems: NavItem[] = [
       "Sports & Outdoors",
       "Books & Media",
     ],
-  },
-  {
-    label: "Promotions",
-    icon: FaTag,
-    href: "/promotions",
-    hasDropdown: false,
-  },
-  {
-    label: "Favourites",
-    icon: FaHeart,
-    href: "/favourites",
-    hasDropdown: false,
-  },
-  {
-    label: "Lists",
-    icon: FaList,
-    href: "/lists",
-    hasDropdown: false,
   },
 ];

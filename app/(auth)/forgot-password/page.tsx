@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Enter your email address and we&apos;ll send you a link to reset
-            your password.
+            your password. [ THIS DOESN'T WORK - This is a placeholder page]
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
